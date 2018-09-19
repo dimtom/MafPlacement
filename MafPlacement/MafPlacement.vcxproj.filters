@@ -15,18 +15,27 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="game.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="round.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="schedule.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="configuration.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MafPlacement.cpp">
+    <ClCompile Include="core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
