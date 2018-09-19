@@ -9,7 +9,7 @@ Schedule createSchedule(const Configuration& conf)
 
     // we need to create a schedule so that every player 
     // take part in equal number of games
-    std::vector<int> games_played(conf.players(), conf.games());
+    std::vector<int> games_played(conf.players(), conf.attempts());
 
     int game_num = 0;
     int player_num = 0;
@@ -49,9 +49,19 @@ Schedule createSchedule(const Configuration& conf)
     return schedule;
 }
 
+void printConfiguration(const Configuration& conf)
+{
+    printf("*** Configuration\n");
+    printf("Players: %d\n", conf.players());
+    printf("Rounds: %d\n", conf.rounds());
+    printf("Tables per round: %d\n", conf.tables());
+    printf("Total nunber of games: %d\n", conf.games());
+    printf("Number of attempts (games played by each player during tournament): %d\n", conf.attempts());
+}
+
 void printSchedule(const Schedule& schedule)
 {
-    printf("*** Schedule\n");
+    printf("\n*** Schedule\n");
 
     int game_num = 0;
     for (const auto& game : schedule.games()) {

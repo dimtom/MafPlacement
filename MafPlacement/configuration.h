@@ -3,15 +3,13 @@
 class Configuration
 {
 public:
-    Configuration(int players, int tables, int rounds, int games)
+    Configuration(int players, int rounds, int tables, int games, int attempts)
         : _players(players)
-        , _tables(tables)
         , _rounds(rounds)
+        , _tables(tables)
         , _games(games)
-    {
-        // TODO:
-        // Check that current configuration does make sense
-    }
+        , _attempts(attempts)
+    {}
     ~Configuration() = default;
 
 public:
@@ -19,6 +17,7 @@ public:
     int tables() const { return _tables; }
     int rounds() const { return _rounds;  }
     int games() const { return _games;  }
+    int attempts() const { return _attempts; }
 
 private:
     // number of players in the tournament
@@ -30,6 +29,9 @@ private:
     // number of rounds in tournament
     int _rounds;
 
-    // number of games per each player
+    // total number of games in the tournament
     int _games; 
+
+    // number of games per each player
+    int _attempts;
 };
