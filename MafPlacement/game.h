@@ -4,11 +4,11 @@
 class Game
 {
 public:
-    static const int NumPlayers = 10;
+    static const int NumSeats = 10;
 public:
     Game(int id)
         : _id(id)
-        , _seats(NumPlayers)
+        , _seats(NumSeats)
     {}
     
     ~Game() = default;

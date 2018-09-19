@@ -3,9 +3,10 @@
 
 
 
-Schedule createSchedule(const Configuration& conf)
+std::unique_ptr<Schedule> 
+createSchedule(const Configuration& conf)
 {
-    Schedule schedule(conf);
+    auto schedule = std::make_unique<Schedule>(conf);
 
     // we need to create a schedule so that every player 
     // take part in equal number of games
@@ -25,7 +26,7 @@ Schedule createSchedule(const Configuration& conf)
             }
 
             // add game to the schedule
-            schedule.addGame(std::move(game));
+            schedule->addGame(std::move(game));
         }
     }
 
