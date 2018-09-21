@@ -16,6 +16,8 @@ createSchedule(const Configuration& conf)
     int player_num = 0;
     for (int r = 0; r < conf.rounds(); r++) {
         for (int t = 0; t < conf.tables(); t++) {
+            if (game_num >= conf.games())
+                break;
 
             // create and initialize a game
             Game game(game_num++);
