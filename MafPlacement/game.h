@@ -24,6 +24,16 @@ public:
         return _seats;
     }
 
+    int getSeat(int idx) const
+    {
+        return _seats[idx];
+    }
+
+    void changeSeat(int idx, int new_value)
+    {
+        _seats[idx] = new_value;
+    }
+
 private:
     int _id;
     std::vector<int> _seats;

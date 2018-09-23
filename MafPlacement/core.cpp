@@ -32,6 +32,21 @@ createSchedule(const Configuration& conf)
         }
     }
 
+    return schedule;
+}
+
+bool verifySchedule(const Schedule& schedule)
+{
+    // calc number of games played by every player
+    std::vector<int> games_played(schedule.configuration().players());
+    for (const auto& game : schedule.games())
+    {
+        for (auto id : game.seats())
+        {
+            games_played[id]++;
+        }
+    }
+
     // debug output
     printf("Sanity check: \n");
     for (size_t i = 0; i < games_played.size(); i++) {
@@ -39,17 +54,26 @@ createSchedule(const Configuration& conf)
     }
     printf("\n");
 
+    int gp = games_played[0];
+    for (size_t i = 1; i < games_played.size(); i++)
+    {
+        if (games_played[i] != gp)
+            return false;
+    }
+
+    return true;
+
+
+
     // sanity check
     // every player
     /*for (size_t i = 0; i < games_played.size(); i++) {
-        if (games_played[i] != 0) {
-            char msg[80];
-            sprintf_s(msg, "sanity check failed: games_played[%d]=%d", i, games_played[i]);
-            throw std::exception(msg);
-        }
+    if (games_played[i] != 0) {
+    char msg[80];
+    sprintf_s(msg, "sanity check failed: games_played[%d]=%d", i, games_played[i]);
+    throw std::exception(msg);
+    }
     }*/
-
-    return schedule;
 }
 
 void printConfiguration(const Configuration& conf)

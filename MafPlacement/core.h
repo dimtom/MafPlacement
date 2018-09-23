@@ -10,6 +10,8 @@
 std::unique_ptr<Schedule> 
 createSchedule(const Configuration& conf);
 
+bool verifySchedule(const Schedule& schedule);
+
 void printConfiguration(const Configuration& conf);
 void printSchedule(const Schedule& schedule);
 void printGame(const Game& game);
