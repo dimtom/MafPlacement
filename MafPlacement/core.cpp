@@ -1,8 +1,6 @@
 #include "core.h"
 #include "schedule.h"
 
-
-
 std::unique_ptr<Schedule> 
 createSchedule(const Configuration& conf)
 {

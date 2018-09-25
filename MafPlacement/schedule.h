@@ -55,7 +55,7 @@ public:
             return false;
         
         int game_shift_one = rand() % games_in_round;
-        int game_add_two = rand() % (games_in_round - 1);
+        int game_add_two = 1 + (rand() % (games_in_round - 1));
         int game_shift_two = (game_shift_one + game_add_two) % games_in_round;
         int game1 = game_low + game_shift_one;
         int game2 = game_low + game_shift_two;
