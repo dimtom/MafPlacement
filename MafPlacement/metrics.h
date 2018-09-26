@@ -22,6 +22,9 @@ public:
     calcPlayerOpponentsHistogram(player_t player_id);
 
 public:
+    static double aggregate(const std::vector<int>& v, size_t exclude_idx, std::function<double(int)> fn);
+
+    static int calcZeros(const std::vector<int>& v, size_t exclude_idx);
     static int calcMin(const std::vector<int>& v, size_t exclude_idx);
     static int calcMax(const std::vector<int>& v, size_t exclude_idx);
     static double calcAverage(const std::vector<int>& v, size_t exclude_idx);

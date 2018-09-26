@@ -40,12 +40,34 @@ Metrics::calcPlayerOpponentsHistogram(player_t player_id)
     return player_opponents;
 }
 
+double Metrics::aggregate(const std::vector<int>& v, size_t exclude_idx, std::function<double(int)> fn)
+{
+    assert(v.size() > 1);
+
+    auto accumulator = 0;
+    for (int i = 0; i < v.size(); i++)
+        if (i != exclude_idx)
+            accumulator += fn(v[i]);
+    return accumulator;
+}
+
+int Metrics::calcZeros(const std::vector<int>& v, size_t exclude_idx)
+{
+    assert(v.size() > 1);
+
+    auto zeros = 0;
+    for (int i = 0; i < v.size(); i++)
+        if (i != exclude_idx && v[i] == 0)
+            zeros++;
+    return zeros;
+}
+
 int Metrics::calcMin(const std::vector<int>& v, size_t exclude_idx)
 {
     assert(v.size() > 1);
     
     auto min_value = INT_MAX;
-    for (int i = 0; i < v.size(); i++)
+    for (size_t i = 0; i < v.size(); i++)
         if (i != exclude_idx && v[i] < min_value)
             min_value = v[i];
     return min_value;
@@ -56,7 +78,7 @@ int Metrics::calcMax(const std::vector<int>& v, size_t exclude_idx)
     assert(v.size() > 1);
     
     auto max_value = INT_MIN;
-    for (int i = 0; i < v.size(); i++)
+    for (size_t i = 0; i < v.size(); i++)
         if (i != exclude_idx &&  v[i] > max_value)
             max_value = v[i];
     return max_value;
@@ -66,9 +88,13 @@ double Metrics::calcAverage(const std::vector<int>& v, size_t exclude_idx)
 {
     assert(v.size() > 1);
     
-    double avg = -v[exclude_idx];
-    for (auto value : v)
-        avg += value;
+    double avg = 0.0;
+    for (size_t i = 0; i < v.size(); i++)
+    {
+        if (i != exclude_idx) {
+            avg += v[i];
+        }
+    }
     
     avg /= (v.size() - 1);
     return avg;
@@ -84,7 +110,7 @@ double Metrics::calcSquareDeviation(const std::vector<int>& v, size_t exclude_id
 double Metrics::calcSquareDeviation(const std::vector<int>& v, size_t exclude_idx, double target)
 {
     double sd = 0.0;
-    for (int i = 0; i < v.size(); i++)
+    for (size_t i = 0; i < v.size(); i++)
     {
         if (i != exclude_idx) {
             sd += (v[i] - target) * (v[i] - target);
