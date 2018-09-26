@@ -7,14 +7,29 @@
 class Game
 {
 public:
-    Game(const Configuration& config)
-        : _config(config)
-    {}
-
-    Game(const Configuration& config, const std::vector<player_t> seats)
+    Game(const Configuration& config, const std::vector<player_t>& seats)
         : _config(config)
     {
-        init(seats);
+        // sanity check
+        if (seats.size() != Configuration::NumSeats) {
+            char msg[4096];
+            sprintf_s(msg, "Can not create a game, expected number of seats %zu, got %zu instead.",
+                Configuration::NumSeats, seats.size());
+            throw std::invalid_argument(msg);
+        }
+
+        // populate seats
+        _seats = std::move(seats);
+
+        // populate players' seats
+        _players.resize(_config.numPlayers(), InvalidSeatId);
+        for (size_t idx = 0; idx < _seats.size(); idx++) {
+            auto player_id = seats[idx];
+
+            assert(player_id >= 0 && player_id < _config.numPlayers());
+            assert(_players[player_id] == InvalidSeatId);
+            _players[player_id] = static_cast<seat_t>(idx);
+        }
     }
     
     ~Game() = default;
@@ -26,26 +41,6 @@ public:
     bool valid() const
     {
         return !_seats.empty() && !_players.empty();
-    }
-
-    void init(const std::vector<player_t>& seats)
-    {
-        _seats.clear();
-        _players.clear();
-
-        // initialize seats
-        assert(seats.size() == Configuration::NumSeats);
-        _seats = std::move(seats);
-
-        // initialize participants
-        _players.resize(_config.numPlayers(), InvalidSeatId);
-        for (size_t idx = 0; idx < _seats.size(); idx++) {
-            auto player_id = seats[idx];
-            
-            assert(player_id >= 0 && player_id < _config.numPlayers());
-            assert(_players[player_id] == InvalidSeatId);
-            _players[player_id] = static_cast<seat_t>(idx);
-        }
     }
 
 //

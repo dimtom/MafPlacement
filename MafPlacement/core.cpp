@@ -4,14 +4,13 @@
 std::unique_ptr<Schedule> 
 createSchedule(const Configuration& conf)
 {
-    auto schedule = std::make_unique<Schedule>(conf);
-
     // we need to create a schedule so that every player 
     // take part in equal number of games
-    std::vector<int> games_played(conf.numPlayers(), conf.numAttempts());
+    std::vector<int> num_games_played(conf.numPlayers(), static_cast<int>(conf.numAttempts()));
 
     int game_num = 0;
     player_t player_num = 0;
+    std::vector<Game> games;
     for (int r = 0; r < conf.numRounds(); r++) {
         for (int t = 0; t < conf.numTables(); t++) {
             if (game_num++ >= conf.numGames())
@@ -21,16 +20,15 @@ createSchedule(const Configuration& conf)
             std::vector<player_t> seats(conf.NumSeats, InvalidPlayerId);
             for (size_t i = 0; i < seats.size(); i++) {
                 seats[i] = player_num;
-                games_played[player_num]--;
+                num_games_played[player_num]--;
                 player_num = ++player_num % conf.numPlayers();
             }
 
-            // add game to the schedule
-            Game game(conf, seats);
-            schedule->addGame(std::move(game));
+            games.emplace_back(conf, seats);
         }
     }
 
+    auto schedule = std::make_unique<Schedule>(conf, games);
     return schedule;
 }
 
@@ -78,11 +76,11 @@ bool verifySchedule(const Schedule& schedule)
 void printConfiguration(const Configuration& conf)
 {
     printf("*** Configuration\n");
-    printf("Players: %d\n", conf.numPlayers());
-    printf("Rounds: %d\n", conf.numRounds());
-    printf("Tables per round: %d\n", conf.numTables());
-    printf("Total nunber of games: %d\n", conf.numGames());
-    printf("Number of attempts (games played by each player during tournament): %d\n", conf.numAttempts());
+    printf("Players: %zu\n", conf.numPlayers());
+    printf("Rounds: %zu\n", conf.numRounds());
+    printf("Tables per round: %zu\n", conf.numTables());
+    printf("Total nunber of games: %zu\n", conf.numGames());
+    printf("Number of attempts (games played by each player during tournament): %zu\n", conf.numAttempts());
 }
 
 void printSchedule(const Schedule& schedule)

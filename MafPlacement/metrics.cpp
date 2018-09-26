@@ -35,8 +35,6 @@ Metrics::calcPlayerOpponentsHistogram(player_t player_id)
         }
     }
 
-    // exclude yourself vs yourself
-    player_opponents[player_id] = 0; 
     return player_opponents;
 }
 
@@ -44,7 +42,7 @@ double Metrics::aggregate(const std::vector<int>& v, size_t exclude_idx, std::fu
 {
     assert(v.size() > 1);
 
-    auto accumulator = 0;
+    double accumulator = 0.0;
     for (int i = 0; i < v.size(); i++)
         if (i != exclude_idx)
             accumulator += fn(v[i]);
