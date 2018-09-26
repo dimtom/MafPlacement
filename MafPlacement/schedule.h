@@ -66,10 +66,32 @@ public:
     }
 
 public:
-    bool randomChange(std::function<double()> fn);
-    bool randomChange(std::function<double()> fn, size_t round);
-    bool randomChangeInGames(std::function<double()> fn,
+    bool randomSeatChange(std::function<double()> fn);
+    bool randomSeatChange(std::function<double()> fn, size_t round);
+    bool randomSeatChangeInGames(std::function<double()> fn,
         size_t game1_idx, size_t game2_idx);
+
+    /*bool randomPlayerChange(std::function<double()> fn);
+    bool randomPlayerChange(std::function<double()> fn, size_t round);
+    bool randomPlayerChangeInGames(std::function<double()> fn,
+        size_t game1_idx, size_t game2_idx);*/
+
+
+    bool canSwitchPlayers(
+        player_t player_a, size_t idx_game_a,
+        player_t player_b, size_t idx_game_b) const;
+
+    void switchPlayers(
+        player_t player_a, size_t idx_game_a,
+        player_t player_b, size_t idx_game_b);
+
+
+private:
+    size_t generateRandomRound() const;
+    void generateRandomGames(size_t round, size_t* out_game_one, size_t* out_game_two) const;
+
+    seat_t generateRandomSeat() const;
+    player_t generateRandomPlayer() const;
 
 private:
     const Configuration& _config;

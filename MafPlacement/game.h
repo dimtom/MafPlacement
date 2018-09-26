@@ -81,7 +81,23 @@ public:
 
         _players[old_player_id] = InvalidSeatId;
         _players[new_player_id] = seat_idx;
+    }
 
+    bool canSubstitutePlayer(player_t a, player_t b) const
+    {
+        return _players[a] != InvalidSeatId && _players[b] == InvalidSeatId;
+    }
+    
+    void substitutePlayer(player_t a, player_t b)
+    {
+        auto seat = _players[a];
+        assert(canSubstitutePlayer(a, b));
+              
+        assert(_seats[seat] == a);
+        _seats[seat] = b;
+
+        _players[a] = InvalidSeatId;
+        _players[b] = seat;
     }
 
 private:
