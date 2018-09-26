@@ -153,6 +153,7 @@
     <ClInclude Include="metrics.h" />
     <ClInclude Include="round.h" />
     <ClInclude Include="schedule.h" />
+    <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core.cpp" />

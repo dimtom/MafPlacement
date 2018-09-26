@@ -3,35 +3,57 @@
 class Configuration
 {
 public:
+    // number of players in every game
+    static const size_t NumSeats = 10;
+
+public:
     Configuration(int players, int rounds, int tables, int games, int attempts)
-        : _players(players)
-        , _rounds(rounds)
-        , _tables(tables)
-        , _games(games)
-        , _attempts(attempts)
-    {}
+        : _numPlayers(players)
+        , _numRounds(rounds)
+        , _numTables(tables)
+        , _numGames(games)
+        , _numAttempts(attempts)
+    {
+        // empty
+    }
+
     ~Configuration() = default;
 
 public:
-    int players() const { return _players; }
-    int tables() const { return _tables; }
-    int rounds() const { return _rounds;  }
-    int games() const { return _games;  }
-    int attempts() const { return _attempts; }
-
-private:
     // number of players in the tournament
-    int _players;
-
+    int numPlayers() const 
+    { 
+        return _numPlayers; 
+    }
+    
     // max number of tables in every round
-    int _tables;
+    int numTables() const 
+    { 
+        return _numTables; 
+    }
 
     // number of rounds in tournament
-    int _rounds;
+    int numRounds() const 
+    { 
+        return _numRounds;  
+    }
 
     // total number of games in the tournament
-    int _games; 
+    int numGames() const 
+    { 
+        return _numGames;  
+    }
 
     // number of games per each player
-    int _attempts;
+    int numAttempts() const 
+    { 
+        return _numAttempts; 
+    }
+
+private:
+    int _numPlayers;
+    int _numTables;
+    int _numRounds;
+    int _numGames; 
+    int _numAttempts;
 };

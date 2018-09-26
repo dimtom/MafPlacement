@@ -6,20 +6,21 @@
 
 #include "configuration.h"
 #include "game.h"
+#include "types.h"
 
 class Schedule
 {
 public:
-    Schedule(const Configuration& conf)
-        : _configuration(conf)
+    Schedule(const Configuration& config)
+        : _config(config)
     {}
 
     ~Schedule() = default;
 
 public:
-    const Configuration& configuration() const
+    const Configuration& config() const
     {
-        return _configuration;
+        return _config;
     }
 
     void clear()
@@ -37,18 +38,19 @@ public:
         return _games;
     }
 
+public:
     bool randomChange(std::function<double()> fn)
     {
-        int round = rand() % _configuration.rounds();
+        int round = rand() % _config.numRounds();
         return randomChange(fn, round);
     }
 
     bool randomChange(std::function<double()> fn, int round)
     {
-        int game_low = round * _configuration.tables();
-        int game_high = (round + 1 < _configuration.rounds())
-            ? (round + 1) * _configuration.tables()
-            : _configuration.games();
+        int game_low = round * _config.numTables();
+        int game_high = (round + 1 < _config.numRounds())
+            ? (round + 1) * _config.numTables()
+            : _config.numGames();
         
         int games_in_round = game_high - game_low;
         if (games_in_round <= 1)
@@ -71,21 +73,21 @@ public:
         auto& g1 = _games[game1_idx];
         auto& g2 = _games[game2_idx];
 
-        int idx1 = rand() % Game::NumSeats;
-        int idx2 = rand() % Game::NumSeats;
+        seat_t pos1 = rand() % Configuration::NumSeats;
+        seat_t pos2 = rand() % Configuration::NumSeats;
 
         // try to swap players
         double score_before = fn();
-        int seat1 = g1.getSeat(idx1);
-        int seat2 = g2.getSeat(idx2);
-        g1.changeSeat(idx1, seat2);
-        g2.changeSeat(idx2, seat1);
+        player_t player1 = g1.getPlayerAtSeat(pos1);
+        player_t player2 = g2.getPlayerAtSeat(pos2);
+        g1.putPlayerToSeat(pos1, player2);
+        g2.putPlayerToSeat(pos2, player1);
 
         double score_after = fn();
         if (score_after >= score_before) {
             // roll back
-            g1.changeSeat(idx1, seat1);
-            g2.changeSeat(idx2, seat2);
+            g1.putPlayerToSeat(pos1, player1);
+            g2.putPlayerToSeat(pos2, player2);
             return false;
         }
 
@@ -93,7 +95,7 @@ public:
     }
 
 private:
-    const Configuration& _configuration;
+    const Configuration& _config;
     std::vector<Game> _games;
 
 

@@ -8,24 +8,25 @@ createSchedule(const Configuration& conf)
 
     // we need to create a schedule so that every player 
     // take part in equal number of games
-    std::vector<int> games_played(conf.players(), conf.attempts());
+    std::vector<int> games_played(conf.numPlayers(), conf.numAttempts());
 
     int game_num = 0;
-    int player_num = 0;
-    for (int r = 0; r < conf.rounds(); r++) {
-        for (int t = 0; t < conf.tables(); t++) {
-            if (game_num >= conf.games())
+    player_t player_num = 0;
+    for (int r = 0; r < conf.numRounds(); r++) {
+        for (int t = 0; t < conf.numTables(); t++) {
+            if (game_num++ >= conf.numGames())
                 break;
 
             // create and initialize a game
-            Game game(game_num++);
-            for (size_t i = 0; i < game.seats().size(); i++) {
-                game.seats()[i] = player_num;
+            std::vector<player_t> seats(conf.NumSeats, InvalidPlayerId);
+            for (size_t i = 0; i < seats.size(); i++) {
+                seats[i] = player_num;
                 games_played[player_num]--;
-                player_num = ++player_num % conf.players();
+                player_num = ++player_num % conf.numPlayers();
             }
 
             // add game to the schedule
+            Game game(conf, seats);
             schedule->addGame(std::move(game));
         }
     }
@@ -36,7 +37,7 @@ createSchedule(const Configuration& conf)
 bool verifySchedule(const Schedule& schedule)
 {
     // calc number of games played by every player
-    std::vector<int> games_played(schedule.configuration().players());
+    std::vector<int> games_played(schedule.config().numPlayers());
     for (const auto& game : schedule.games())
     {
         for (auto id : game.seats())
@@ -77,11 +78,11 @@ bool verifySchedule(const Schedule& schedule)
 void printConfiguration(const Configuration& conf)
 {
     printf("*** Configuration\n");
-    printf("Players: %d\n", conf.players());
-    printf("Rounds: %d\n", conf.rounds());
-    printf("Tables per round: %d\n", conf.tables());
-    printf("Total nunber of games: %d\n", conf.games());
-    printf("Number of attempts (games played by each player during tournament): %d\n", conf.attempts());
+    printf("Players: %d\n", conf.numPlayers());
+    printf("Rounds: %d\n", conf.numRounds());
+    printf("Tables per round: %d\n", conf.numTables());
+    printf("Total nunber of games: %d\n", conf.numGames());
+    printf("Number of attempts (games played by each player during tournament): %d\n", conf.numAttempts());
 }
 
 void printSchedule(const Schedule& schedule)
@@ -97,7 +98,8 @@ void printSchedule(const Schedule& schedule)
 
 void printGame(const Game& game)
 {
-    for (const auto& s : game.seats())
-        printf("%3d", s);
+    for (const auto& s : game.seats()) {
+        printf("%3u", s);
+    }
     printf("\n");
 }

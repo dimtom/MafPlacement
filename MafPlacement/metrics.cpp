@@ -5,10 +5,10 @@
 std::vector<int> 
 Metrics::calcPlayerSeatsHistogram(int player_id)
 {
-    std::vector<int> player_seats(Game::NumSeats, 0);
+    std::vector<int> player_seats(Configuration::NumSeats, 0);
     for (const auto& game : _schedule.games())
     {
-        for (size_t i = 0; i < Game::NumSeats; i++) {
+        for (size_t i = 0; i < Configuration::NumSeats; i++) {
             if (game.seats()[i] == player_id)
                 player_seats[i]++;
         }
@@ -21,11 +21,11 @@ Metrics::calcPlayerSeatsHistogram(int player_id)
 std::vector<int>
 Metrics::calcPlayerOpponentsHistogram(int player_id)
 {
-    std::vector<int> player_opponents(_schedule.configuration().players(), 0);
+    std::vector<int> player_opponents(_schedule.config().numPlayers(), 0);
     for (const auto& game : _schedule.games())
     {
         bool good_game = false;
-        for (size_t i = 0; i < Game::NumSeats; i++) {
+        for (size_t i = 0; i < Configuration::NumSeats; i++) {
             if (game.seats()[i] == player_id)
                 good_game = true;
         }
@@ -34,7 +34,7 @@ Metrics::calcPlayerOpponentsHistogram(int player_id)
             continue;
         }
 
-        for (size_t i = 0; i < Game::NumSeats; i++) {
+        for (size_t i = 0; i < Configuration::NumSeats; i++) {
             auto id = game.seats()[i];
             player_opponents[id]++;
         }
