@@ -14,19 +14,19 @@ public:
     // histogram of player seats
     // returns vector of size "10"
     std::vector<int> 
-    calcPlayerSeatsHistogram(int num_player);
+    calcPlayerSeatsHistogram(player_t player_id);
 
     // histogram of player's opponents
     // returns vector of size "number of players"
     std::vector<int>
-    calcPlayerOpponentsHistogram(int player_id);
+    calcPlayerOpponentsHistogram(player_t player_id);
 
 public:
-    static int calcMin(const std::vector<int>& v);
-    static int calcMax(const std::vector<int>& v);
-    static double calcAverage(const std::vector<int>& v);
-    static double calcSquareDeviation(const std::vector<int>& v);
-    static double calcSquareDeviation(const std::vector<int>& v, double target);
+    static int calcMin(const std::vector<int>& v, size_t exclude_idx);
+    static int calcMax(const std::vector<int>& v, size_t exclude_idx);
+    static double calcAverage(const std::vector<int>& v, size_t exclude_idx);
+    static double calcSquareDeviation(const std::vector<int>& v, size_t exclude_idx);
+    static double calcSquareDeviation(const std::vector<int>& v, size_t exclude_idx, double target);
 
 public:
     const Schedule& _schedule;
