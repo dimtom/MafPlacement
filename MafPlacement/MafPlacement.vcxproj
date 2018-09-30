@@ -150,15 +150,19 @@
     <ClInclude Include="configuration.h" />
     <ClInclude Include="core.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="log.h" />
     <ClInclude Include="metrics.h" />
+    <ClInclude Include="random_optimizer.h" />
     <ClInclude Include="round.h" />
     <ClInclude Include="schedule.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="metrics.cpp" />
+    <ClCompile Include="random_optimizer.cpp" />
     <ClCompile Include="schedule.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

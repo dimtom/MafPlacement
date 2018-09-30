@@ -8,7 +8,7 @@
 
 // creates and returns initial schedule for provided parameters (configuration)
 std::unique_ptr<Schedule> 
-createSchedule(const Configuration& conf);
+createSchedule(const Configuration& conf, player_t shift_player_num);
 
 bool verifySchedule(const Schedule& schedule);
 

@@ -2,14 +2,14 @@
 #include "schedule.h"
 
 std::unique_ptr<Schedule> 
-createSchedule(const Configuration& conf)
+createSchedule(const Configuration& conf, player_t shift_player_num = 0)
 {
     // we need to create a schedule so that every player 
     // take part in equal number of games
     std::vector<int> num_games_played(conf.numPlayers(), static_cast<int>(conf.numAttempts()));
 
     int game_num = 0;
-    player_t player_num = 0;
+    player_t player_num = shift_player_num % conf.numPlayers();
     std::vector<Game> games;
     for (int r = 0; r < conf.numRounds(); r++) {
         for (int t = 0; t < conf.numTables(); t++) {
