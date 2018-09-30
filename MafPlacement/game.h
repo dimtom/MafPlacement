@@ -2,36 +2,13 @@
 #include <cassert>
 #include <vector>
 
+#include "configuration.h"
 #include "types.h"
 
 class Game
 {
 public:
-    Game(const Configuration& config, const std::vector<player_t>& seats)
-        : _config(config)
-    {
-        // sanity check
-        if (seats.size() != Configuration::NumSeats) {
-            char msg[4096];
-            sprintf_s(msg, "Can not create a game, expected number of seats %zu, got %zu instead.",
-                Configuration::NumSeats, seats.size());
-            throw std::invalid_argument(msg);
-        }
-
-        // populate seats
-        _seats = std::move(seats);
-
-        // populate players' seats
-        _players.resize(_config.numPlayers(), InvalidSeatId);
-        for (size_t idx = 0; idx < _seats.size(); idx++) {
-            auto player_id = seats[idx];
-
-            assert(player_id >= 0 && player_id < _config.numPlayers());
-            assert(_players[player_id] == InvalidSeatId);
-            _players[player_id] = static_cast<seat_t>(idx);
-        }
-    }
-    
+    Game(const Configuration& config, const std::vector<player_t>& seats);
     ~Game() = default;
 
 // 
@@ -48,57 +25,25 @@ public:
 //
 public:
     // returns a map seat -> player_id
-    const std::vector<player_t>& seats() const
-    {
-        return _seats;
-    }
+    const std::vector<player_t>& seats() const;
 
     // returns a map: player_id -> their seat in this game
     // or NoSeat this player does not take part in a game
-    const std::vector<seat_t>& players() const
-    {
-        return _players;
-    }
+    const std::vector<seat_t>& players() const;
 
-    bool participates(player_t player_id) const
-    {
-        return _players[player_id] != InvalidSeatId;
-    }
+    bool participates(player_t player_id) const;
 
     // returns player id of given seat index
-    player_t getPlayerAtSeat(seat_t seat_idx) const
-    {
-        return _seats[seat_idx];
-    }
+    player_t getPlayerAtSeat(seat_t seat_idx) const;
 
     // changes player id of given seat index
-    void putPlayerToSeat(seat_t seat_idx, player_t new_player_id)
-    {
-        assert(new_player_id >= 0 && new_player_id < _config.numPlayers());
+    void putPlayerToSeat(seat_t seat_idx, player_t new_player_id);
 
-        auto old_player_id = _seats[seat_idx];
-        _seats[seat_idx] = new_player_id;
-
-        _players[old_player_id] = InvalidSeatId;
-        _players[new_player_id] = seat_idx;
-    }
-
-    bool canSubstitutePlayer(player_t a, player_t b) const
-    {
-        return _players[a] != InvalidSeatId && _players[b] == InvalidSeatId;
-    }
+    bool canSubstitutePlayer(player_t a, player_t b) const;
     
-    void substitutePlayer(player_t a, player_t b)
-    {
-        auto seat = _players[a];
-        assert(canSubstitutePlayer(a, b));
-              
-        assert(_seats[seat] == a);
-        _seats[seat] = b;
+    void substitutePlayer(player_t a, player_t b);
 
-        _players[a] = InvalidSeatId;
-        _players[b] = seat;
-    }
+    void switchSeats(size_t seat_one, size_t seat_two);
 
 private:
     const Configuration& _config;

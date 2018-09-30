@@ -1,16 +1,56 @@
 #include "schedule.h"
 
+Schedule::Schedule(const Configuration& config, const std::vector<Game>& games)
+    : _config(config)
+    , _games(std::move(games))
+{
+    // TODO: sanity check - provided config should be the same as all the games' config!
+
+    if (_games.size() != _config.numGames()) {
+        char msg[4096];
+        sprintf_s(msg, "Can not create a schedule, expected number of games: %zu, got %zu instead.",
+            _config.numGames(), _games.size());
+        throw std::invalid_argument(msg);
+    }
+
+    // populate rounds
+    _rounds.clear();
+    int game_num = 0;
+    for (size_t round = 0; round < _config.numRounds(); round++) {
+        std::vector<Game*> games_in_round;
+        for (size_t table = 0; table < _config.numTables(); table++) {
+            if (game_num < _config.numGames()) {
+                games_in_round.push_back(&_games[game_num]);
+                game_num++;
+            }
+        }
+        Round r(games_in_round);
+        _rounds.push_back(std::move(r));
+    }
+}
+
 size_t Schedule::generateRandomRound() const
 {
     assert(_config.numRounds() >= 2);
 
     size_t round = rand() % _config.numRounds();
+    
+    // TODO: move it into special constraint/function
+    // do not return a round with a single game...
     if (_rounds[round].games().size() < 2) {
         round--;
         assert(_rounds[round].games().size() < 2);
     }
 
     return round;
+}
+
+size_t Schedule::generateRandomGame() const
+{
+    assert(_config.numGames() >= 2);
+
+    size_t game = rand() % _config.numGames();
+    return game;
 }
 
 void Schedule::generateRandomGames(size_t round, size_t* out_game_one, size_t* out_game_two) const
@@ -176,6 +216,13 @@ void Schedule::switchPlayers(
 
     game_a.substitutePlayer(player_a, player_b);
     game_b.substitutePlayer(player_b, player_a);
+}
+
+void Schedule::switchSeats(size_t game_idx, size_t seat_one, size_t seat_two)
+{
+    auto& game = _games[game_idx];
+    game.switchSeats(seat_one, seat_two);
+
 }
 
 

@@ -3,7 +3,6 @@
 
 double RandomOptimizer::optimize()
 {
-    Metrics metrics(_schedule);
     const auto& conf = _schedule.config();
 
     // modify schedule
@@ -15,14 +14,14 @@ double RandomOptimizer::optimize()
     for (size_t i = 0; i < _max_iterations; i++)
     {
         if ((i % div) == 0) {
-            auto score = _score_fn(_schedule, metrics);
+            auto score = _score_fn(_schedule);
             printf("Iteration #%zu: score=%6.2f good iterations: %zu\n", i, score, num_good);
             div *= 5;
         }
 
         bool success = _schedule.randomSeatChange([&]() {
             num_probes++;
-            return _score_fn(_schedule, metrics);
+            return _score_fn(_schedule);
         });
         num_good += (int)success;
         num_iterations++;
@@ -32,5 +31,5 @@ double RandomOptimizer::optimize()
     printf("Number of probes: %zu\n", num_probes);
     printf("Good iterations: %zu\n", num_good);
 
-    return _score_fn(_schedule, metrics);
+    return _score_fn(_schedule);
 }

@@ -43,39 +43,33 @@ bool verifySchedule(const Schedule& schedule)
             games_played[id]++;
         }
     }
-
-    // debug output
-    printf("Sanity check: \n");
-    for (size_t i = 0; i < games_played.size(); i++) {
-        printf("%3d", games_played[i]);
-    }
-    printf("\n");
-
+    
+    bool ok = true;
     int gp = games_played[0];
     for (size_t i = 1; i < games_played.size(); i++)
     {
-        if (games_played[i] != gp)
-            return false;
+        if (games_played[i] != gp) {
+            ok = false;
+            break;
+        }
     }
 
-    return true;
-
-
-
-    // sanity check
-    // every player
-    /*for (size_t i = 0; i < games_played.size(); i++) {
-    if (games_played[i] != 0) {
-    char msg[80];
-    sprintf_s(msg, "sanity check failed: games_played[%d]=%d", i, games_played[i]);
-    throw std::exception(msg);
+    // debug output only if we have problems
+    if (!ok) {
+        
+        printf("Sanity check: \n");
+        for (size_t i = 0; i < games_played.size(); i++) {
+            printf("%3d", games_played[i]);
+        }
+        printf("\n");
     }
-    }*/
+
+    return ok;
 }
 
 void printConfiguration(const Configuration& conf)
 {
-    printf("*** Configuration\n");
+    printf("\n*** Configuration\n");
     printf("Players: %zu\n", conf.numPlayers());
     printf("Rounds: %zu\n", conf.numRounds());
     printf("Tables per round: %zu\n", conf.numTables());

@@ -107,14 +107,16 @@ double Metrics::calcSquareDeviation(const std::vector<int>& v, size_t exclude_id
 
 double Metrics::calcSquareDeviation(const std::vector<int>& v, size_t exclude_idx, double target)
 {
+    size_t count = 0;
     double sd = 0.0;
     for (size_t i = 0; i < v.size(); i++)
     {
         if (i != exclude_idx) {
             sd += (v[i] - target) * (v[i] - target);
+            count++;
         }
     }
 
-    sd /= v.size();
-    return sd;
+    auto result = sd / count;
+    return result;
 }
