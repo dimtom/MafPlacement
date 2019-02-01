@@ -66,32 +66,3 @@ bool verifySchedule(const Schedule& schedule)
 
     return ok;
 }
-
-void printConfiguration(const Configuration& conf)
-{
-    printf("\n*** Configuration\n");
-    printf("Players: %zu\n", conf.numPlayers());
-    printf("Rounds: %zu\n", conf.numRounds());
-    printf("Tables per round: %zu\n", conf.numTables());
-    printf("Total nunber of games: %zu\n", conf.numGames());
-    printf("Number of attempts (games played by each player during tournament): %zu\n", conf.numAttempts());
-}
-
-void printSchedule(const Schedule& schedule)
-{
-    printf("\n*** Schedule\n");
-
-    int game_num = 0;
-    for (const auto& game : schedule.games()) {
-        printf("*** Game %3d >> ", ++game_num);
-        printGame(game);
-    }
-}
-
-void printGame(const Game& game)
-{
-    for (const auto& s : game.seats()) {
-        printf("%3u", s);
-    }
-    printf("\n");
-}

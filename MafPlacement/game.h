@@ -7,13 +7,13 @@
 
 class Game
 {
+// 
+// construct and initialize
+// 
 public:
     Game(const Configuration& config, const std::vector<player_t>& seats);
     ~Game() = default;
 
-// 
-// construct and initialize
-// 
 public:
     bool valid() const
     {

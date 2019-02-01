@@ -48,7 +48,6 @@ public:
     bool randomPlayerChangeInGames(std::function<double()> fn,
         size_t game1_idx, size_t game2_idx);*/
 
-
     bool canSwitchPlayers(
         player_t player_a, size_t idx_game_a,
         player_t player_b, size_t idx_game_b) const;
@@ -59,8 +58,6 @@ public:
 
     void switchSeats(size_t game_num, size_t seat_one, size_t seat_two);
 
-
-
 public:
     // helper methods for optimizers
     size_t generateRandomRound() const;
@@ -70,8 +67,6 @@ public:
 
 private:
     void generateRandomGames(size_t round, size_t* out_game_one, size_t* out_game_two) const;
-
-    
 
 private:
     const Configuration& _config;
