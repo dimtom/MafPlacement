@@ -5,11 +5,12 @@
 #include "configuration.h"
 #include "types.h"
 
+//
+// class Game - represents who plays in mafia game
+// and what seats each player holds
+//
 class Game
 {
-// 
-// construct and initialize
-// 
 public:
     Game(const Configuration& config, const std::vector<player_t>& seats);
     ~Game() = default;
@@ -20,17 +21,17 @@ public:
         return !_seats.empty() && !_players.empty();
     }
 
-//
-// get-set
-//
 public:
     // returns a map seat -> player_id
+    // size of array: 10 (Configuration::NumSeats)
     const std::vector<player_t>& seats() const;
 
     // returns a map: player_id -> their seat in this game
     // or NoSeat this player does not take part in a game
+    // size of array: Configuration::NumPlayers
     const std::vector<seat_t>& players() const;
 
+    // returns if player_id participates in the game
     bool participates(player_t player_id) const;
 
     // returns player id of given seat index

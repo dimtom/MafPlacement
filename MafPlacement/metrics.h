@@ -1,6 +1,10 @@
 #pragma once
 #include "schedule.h"
 
+//
+// class Metrics - helper class
+// to calculate various metrics on Schedule
+//
 class Metrics
 {
 public:
@@ -31,7 +35,7 @@ public:
     static double calcSquareDeviation(const std::vector<int>& v, size_t exclude_idx);
     static double calcSquareDeviation(const std::vector<int>& v, size_t exclude_idx, double target);
 
-public:
+private:
     const Schedule& _schedule;
 
 };

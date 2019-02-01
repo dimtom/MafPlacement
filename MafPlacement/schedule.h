@@ -9,6 +9,12 @@
 #include "round.h"
 #include "types.h"
 
+// 
+// class Schedule - represents a schedule of games.
+// Uses Configuration to describe a tournament (number of players, number of rounds, number of games etc).
+// Stores Games in a flat vector and grouped by Rounds.
+// Provides methods to modify current schedule. 
+//
 class Schedule
 {
 public:

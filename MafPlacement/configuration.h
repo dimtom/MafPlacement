@@ -1,5 +1,8 @@
 #pragma once
 
+//
+// class Configuration - set of common parameters
+//
 class Configuration
 {
 public:

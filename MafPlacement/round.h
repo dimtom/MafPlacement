@@ -3,6 +3,11 @@
 
 class Game;
 
+//
+// class Round - represents a set of games played simultineously.
+// Therefore, each player can take part not more than in a single
+// game of given round.
+//
 class Round
 {
 public:
