@@ -148,7 +148,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="configuration.h" />
-    <ClInclude Include="core.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="metrics.h" />
@@ -159,7 +158,6 @@
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="core.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />

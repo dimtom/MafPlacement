@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <functional>
+#include <memory>
 #include <vector>
 
 #include "configuration.h"
@@ -18,15 +19,17 @@
 class Schedule
 {
 public:
+    // creates and returns initial schedule for provided parameters (configuration)
+    static std::unique_ptr<Schedule>
+    createInitialSchedule(const Configuration& conf, player_t shift_player_num);
+
+public:
     Schedule(const Configuration& config, const std::vector<Game>& games);
     Schedule(const Schedule& source);
     ~Schedule() = default;
 
 public:
-    bool valid() const
-    {
-        return _games.size() == _config.numGames() && _rounds.size() == _config.numRounds();
-    }
+    bool verify() const;
 
 public:
     const Configuration& config() const
