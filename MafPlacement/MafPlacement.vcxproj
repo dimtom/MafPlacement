@@ -151,10 +151,12 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="metrics.h" />
+    <ClInclude Include="print.h" />
     <ClInclude Include="random_optimizer.h" />
     <ClInclude Include="round.h" />
     <ClInclude Include="schedule.h" />
     <ClInclude Include="seat_optimizer.h" />
+    <ClInclude Include="solve.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
@@ -162,9 +164,11 @@
     <ClCompile Include="log.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="metrics.cpp" />
+    <ClCompile Include="print.cpp" />
     <ClCompile Include="random_optimizer.cpp" />
     <ClCompile Include="schedule.cpp" />
     <ClCompile Include="seat_optimizer.cpp" />
+    <ClCompile Include="solve.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,8 @@
 #include "schedule.h"
 
+#include <cassert>
+
+
 std::unique_ptr<Schedule>
 Schedule::createInitialSchedule(const Configuration& conf, player_t shift_player_num = 0)
 {
