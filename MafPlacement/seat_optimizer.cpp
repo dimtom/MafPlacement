@@ -14,11 +14,11 @@ double SeatOptimizer::optimize()
             continue;
         }
 
-        if ((i % div) == 0) {
+        /*if ((i % div) == 0) {
             auto score = _score_fn(_schedule);
             printf("Iteration #%zu: score=%6.2f good iterations: %zu\n", i, score, good_iterations);
             div *= 5;
-        }
+        }*/
 
         auto score_before = _score_fn(_schedule);
         _schedule.switchSeats(game_idx, seat_one, seat_two);
@@ -31,7 +31,6 @@ double SeatOptimizer::optimize()
         else {
             good_iterations++;
         }
-        
     }
 
     auto score = _score_fn(_schedule);

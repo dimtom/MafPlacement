@@ -19,6 +19,7 @@ class Schedule
 {
 public:
     Schedule(const Configuration& config, const std::vector<Game>& games);
+    Schedule(const Schedule& source);
     ~Schedule() = default;
 
 public:
@@ -72,6 +73,7 @@ public:
     player_t generateRandomPlayer() const;
 
 private:
+    void populateRounds();
     void generateRandomGames(size_t round, size_t* out_game_one, size_t* out_game_two) const;
 
 private:

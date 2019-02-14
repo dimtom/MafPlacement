@@ -13,6 +13,18 @@ Schedule::Schedule(const Configuration& config, const std::vector<Game>& games)
         throw std::invalid_argument(msg);
     }
 
+    populateRounds();
+}
+
+Schedule::Schedule(const Schedule& source)
+    : _config(source._config)
+    , _games(source._games)
+{
+    populateRounds();
+}
+
+void Schedule::populateRounds()
+{
     // populate rounds
     _rounds.clear();
     int game_num = 0;
@@ -28,7 +40,6 @@ Schedule::Schedule(const Configuration& config, const std::vector<Game>& games)
         _rounds.push_back(std::move(r));
     }
 }
-
 size_t Schedule::generateRandomRound() const
 {
     assert(_config.numRounds() >= 2);

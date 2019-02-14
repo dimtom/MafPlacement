@@ -13,11 +13,11 @@ double RandomOptimizer::optimize()
 
     for (size_t i = 0; i < _max_iterations; i++)
     {
-        if ((i % div) == 0) {
+        /*if ((i % div) == 0) {
             auto score = _score_fn(_schedule);
             printf("Iteration #%zu: score=%6.2f good iterations: %zu\n", i, score, num_good);
             div *= 5;
-        }
+        }*/
 
         bool success = _schedule.randomSeatChange([&]() {
             num_probes++;
@@ -27,9 +27,9 @@ double RandomOptimizer::optimize()
         num_iterations++;
     }
 
-    printf("Number of iterations: %zu\n", num_iterations);
+    /*printf("Number of iterations: %zu\n", num_iterations);
     printf("Number of probes: %zu\n", num_probes);
-    printf("Good iterations: %zu\n", num_good);
+    printf("Good iterations: %zu\n", num_good);*/
 
     return _score_fn(_schedule);
 }
