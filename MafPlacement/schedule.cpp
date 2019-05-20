@@ -34,6 +34,24 @@ Schedule::createInitialSchedule(const Configuration& conf, player_t shift_player
     return schedule;
 }
 
+std::unique_ptr<Schedule>
+Schedule::createCustomSchedule(const Configuration& conf, const std::vector<std::vector<player_t>>& seats)
+{
+    // TODO: here we do not check for seats - range of players, rounds, etc
+    std::vector<Game> games;
+    for (const auto& s : seats) {
+        assert(s.size() == conf.NumSeats);
+
+        auto t = s;
+        for (auto& player : t)
+            player--;
+        games.emplace_back(conf, t);
+    }
+
+    auto schedule = std::make_unique<Schedule>(conf, games);
+    return schedule;
+}
+
 bool Schedule::verify() const
 {
     // calc number of games played by every player

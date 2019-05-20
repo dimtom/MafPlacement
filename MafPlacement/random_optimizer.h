@@ -21,10 +21,23 @@ public:
 public:
     double optimize();
 
+    size_t totalIterations() const
+    {
+        return _total_iterations;
+    }
+    
+    size_t goodIterations() const
+    {
+        return _good_iterations;
+    }
+
 private:
     Schedule& _schedule;
     std::function<double(const Schedule&)> _score_fn;
     size_t _max_iterations;
+
+    size_t _total_iterations;
+    size_t _good_iterations;
 
 };
 

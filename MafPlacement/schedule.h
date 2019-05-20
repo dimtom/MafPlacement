@@ -22,6 +22,9 @@ public:
     static std::unique_ptr<Schedule>
     createInitialSchedule(const Configuration& conf, player_t shift_player_num);
 
+    static std::unique_ptr<Schedule>
+    createCustomSchedule(const Configuration& conf, const std::vector<std::vector<player_t>>& games);
+
 public:
     Schedule(const Configuration& config, const std::vector<Game>& games);
     Schedule(const Schedule& source);

@@ -1,20 +1,26 @@
 #include "print.h"
 
 #include "metrics.h"
+
 void outputPlayerMatrix(const Schedule& schedule)
 {
     Metrics metrics(schedule);
     const auto& conf = schedule.config();
 
     printf("\nPlayer opponents:\n");
-    for (int player = 0; player < conf.numPlayers(); player++)
+    for (player_t player = 0; player < conf.numPlayers(); player++)
     {
-        auto opponents = metrics.calcPlayerOpponentsHistogram(player);
-
         auto print_player = 1 + player;
         printf("Player %2d: ", print_player);
-        for (const auto& v : opponents) {
-            printf("%3d", v);
+        
+        auto opponents = metrics.calcPlayerOpponentsHistogram(player);
+        assert(opponents.size() == conf.numPlayers());
+        
+        for (size_t i = 0; i < conf.numPlayers(); i++) {
+            if (i != player)
+                printf("%3d", opponents[i]);
+            else
+                printf(" * ");
         }
         printf("\n");
     }
@@ -87,7 +93,7 @@ void outputInitial(const Schedule& schedule)
     }
 }
 
-void outputFinal(const Schedule& schedule)
+void outputPlayerOptimization(const Schedule& schedule)
 {
     Metrics metrics(schedule);
     const auto& conf = schedule.config();
@@ -95,7 +101,7 @@ void outputFinal(const Schedule& schedule)
     // print schedule
     printSchedulebyRounds(schedule);
     printScheduleByPlayers(schedule);
-    printScheduleByPlayers2(schedule);
+    printScheduleByPlayersCStyle(schedule);
     if (!schedule.verify()) {
         throw std::exception("schedule is not valid");
     }
@@ -103,25 +109,6 @@ void outputFinal(const Schedule& schedule)
     outputPlayerMatrix(schedule);
     outputPairsHistogram(schedule);
     outputPlayerStatistics(schedule);
-    outputSeatOptimization(schedule);
-}
-
-void outputPlayerOptimization(const Schedule& schedule)
-{
-    Metrics metrics(schedule);
-    const auto& conf = schedule.config();
-
-    // print schedule
-    //printSchedulebyRounds(schedule);
-    //printScheduleByPlayers(schedule);
-    printScheduleByPlayers2(schedule);
-    if (!schedule.verify()) {
-        throw std::exception("schedule is not valid");
-    }
-
-    //outputPlayerMatrix(schedule);
-    outputPairsHistogram(schedule);
-    // outputPlayerStatistics(schedule);
 }
 
 
@@ -141,6 +128,25 @@ void outputSeatOptimization(const Schedule& schedule)
             printf("%4d", v);
         printf("\n");
     }
+}
+
+void outputFinal(const Schedule& schedule)
+{
+    Metrics metrics(schedule);
+    const auto& conf = schedule.config();
+
+    // print schedule
+    printSchedulebyRounds(schedule);
+    printScheduleByPlayers(schedule);
+    printScheduleByPlayersCStyle(schedule);
+    if (!schedule.verify()) {
+        throw std::exception("schedule is not valid");
+    }
+
+    outputPlayerMatrix(schedule);
+    outputPairsHistogram(schedule);
+    outputPlayerStatistics(schedule);
+    outputSeatOptimization(schedule);
 }
 
 void printConfiguration(const Configuration& conf)
@@ -218,37 +224,44 @@ void printScheduleByPlayers(const Schedule& schedule)
     }
 }
 
-void printScheduleByPlayers2(const Schedule& schedule)
+void printScheduleByPlayersCStyle(const Schedule& schedule)
 {
-    printf("*** Schedule for players2\n");
+    printf("*** Schedule for players in C-style\n");
 
     auto& conf = schedule.config();
     for (player_t player = 0; player < conf.numPlayers(); player++) {
         auto print_player = 1 + player;
+        printf("Player %2d: ", print_player);
+        printf("{");
 
+        bool comma = false;
         int round_num = 0;
         for (const auto& round : schedule.rounds()) {
             round_num++;
 
+            if (comma)
+                printf(",");
+            comma = true;
+
             int game_num = 0;
             bool found = false;
             for (const Game* game : round.games()) {
+                game_num++;
                 if (game->participates(player)) {
                     // found a table and a seat for this player this round
                     auto print_seat = 1 + game->players()[player];
-                    printf("%2d ", game_num);
+                    printf(" %2d", game_num);
                     found = true;
                     break;
                 }
-                game_num++;
             }
 
             if (!found) {
                 // no game for this player this round
-                printf(" * ");
+                printf("  0");
             }
         }
-        printf("\n");
+        printf("}\n");
     }
 }
 
