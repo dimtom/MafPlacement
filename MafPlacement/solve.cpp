@@ -24,9 +24,9 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
 
         // int k[11] = { 100, 50, 0, 0, 0, 0, 20, 100, 200, 400, 800 };
         // int k[11] = { 100, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        // int k[11] = { 500, 100, 10, 0, 10, 50, 150, 200, 400, 800, 1000 };
+        
 
-        int k[4] = { 300, 0, 0, 0 };
+        int k[11] = { 50, 20, 1, 0, 0, 10, 30, 60, 120, 250, 500 };
         add_penalty += metrics.aggregate(opponents, player, [&k](int value) { return k[value]; });
     }
 
@@ -51,15 +51,17 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
 }
 
 std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
+    size_t player_step, 
     size_t num_stages,
     size_t num_iterations)
 {
     // calculate only ONE single initial schedule - just to reduce computations
     // assign this variable to ONE to get as many trivial initial schedules as possible
-    player_t player_step = static_cast<player_t>(conf.numPlayers());
+    if (player_step == 0)
+        player_step = static_cast<player_t>(conf.numPlayers());
 
     printf("\n *** Player optimization\n");
-    printf("player_step: %d\n", player_step);
+    printf("player_step: %zu\n", player_step);
     printf("Num stages: %zu\n", num_stages);
     printf("Num iterations on every stage: %zu\n", num_iterations);
 
@@ -67,28 +69,11 @@ std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
     double worst_score = FLT_MIN;
     std::unique_ptr<Schedule> best_schedule;
 
-    for (player_t player_shift = 0; player_shift < conf.numPlayers(); player_shift += player_step) {
+    for (player_t player_shift = 0; player_shift < conf.numPlayers(); player_shift += static_cast<player_t>(player_step)) {
         printf("\n* Player shift: %d\n", player_shift);
         for (size_t stage = 0; stage < num_stages; ++stage) {
             // create initial schedule
-            std::unique_ptr<Schedule> schedule;
-            if (player_shift == 0) {
-                printf("\n*** Custom schedule\n");
-                std::vector<std::vector<player_t>> custom_seats = {
-                    { 1,  2,  3,  4,  5, 11, 12, 13, 14, 15 },
-                    { 6,  7,  8,  9, 10, 16, 17, 18, 19, 20 },
-                    { 1,  3,  5,  7,  9, 11, 13, 15, 17, 19 },
-                    { 2,  4,  6,  8, 10, 12, 14, 16, 18, 20 },
-                    //{ 2,  5,  9,  3,  7,  13, 15, 12, 18, 19 },
-                    //{ 1,  4,  8,  6, 10,  11, 14, 16, 17, 20 }
-                    { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 },
-                    { 1,  2,  3,  4,  5,  6, 7, 8, 9, 10 }
-                };
-                schedule = Schedule::createCustomSchedule(conf, custom_seats);
-            }
-            else {
-                schedule = Schedule::createInitialSchedule(conf, player_shift);
-            }
+            std::unique_ptr<Schedule> schedule = Schedule::createInitialSchedule(conf, player_shift);
 
             // print initial schedule
             // outputInitial(*schedule);
