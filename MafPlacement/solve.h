@@ -9,7 +9,8 @@ std::unique_ptr<Schedule> solvePlayers(
     const Configuration& conf,
     size_t player_step,
     size_t num_stages,
-    size_t num_iterations);
+    size_t num_iterations,
+    std::function<bool(const Schedule&, double)> schedule_fn);
 
 std::unique_ptr<Schedule> solveSeats(
     const Schedule& schedule,

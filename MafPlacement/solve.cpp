@@ -12,6 +12,9 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
 {
     const auto& conf = schedule.config();
 
+    size_t zero_pairs_min = 5;
+    size_t zero_pairs_found = 0;
+
     double sd_penalty = 0.0;
     double add_penalty = 0.0;
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
@@ -26,8 +29,20 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
         // int k[11] = { 100, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         
 
-        int k[11] = { 50, 20, 1, 0, 0, 10, 30, 60, 120, 250, 500 };
-        add_penalty += metrics.aggregate(opponents, player, [&k](int value) { return k[value]; });
+        int k[11] = { 200, 100, 2, 1, 2, 10, 200, 200, 400, 500, 900 };
+        add_penalty += metrics.aggregate(opponents, player, 
+            [&k, &zero_pairs_found, zero_pairs_min](int value)
+            {
+                if (value == 0)
+                {
+                    // need to find zero_pairs_min
+                    zero_pairs_found++;
+                    if (zero_pairs_found <= zero_pairs_min)
+                        return 0;
+                }
+                
+                return k[value]; 
+            });
     }
 
     return sd_penalty + add_penalty;
@@ -53,7 +68,8 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
 std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
     size_t player_step, 
     size_t num_stages,
-    size_t num_iterations)
+    size_t num_iterations,
+    std::function<bool(const Schedule&, double)> schedule_fn)
 {
     // calculate only ONE single initial schedule - just to reduce computations
     // assign this variable to ONE to get as many trivial initial schedules as possible
@@ -61,9 +77,9 @@ std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
         player_step = static_cast<player_t>(conf.numPlayers());
 
     printf("\n *** Player optimization\n");
-    printf("player_step: %zu\n", player_step);
-    printf("Num stages: %zu\n", num_stages);
-    printf("Num iterations on every stage: %zu\n", num_iterations);
+    printf("\tPlayer_step: %zu\n", player_step);
+    printf("\tNum stages: %zu\n", num_stages);
+    printf("\tNum iterations on every stage: %zu\n", num_iterations);
 
     double best_score = FLT_MAX;
     double worst_score = FLT_MIN;
@@ -88,6 +104,10 @@ std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
             printf("Stage: %3zu. Score: %10.2f. Iterations: %10zu / %10zu\n", 
                 stage, score, 
                 good_iterations, total_iterations);
+
+            // callback - found a schedule
+            if (!schedule_fn(*schedule, score))
+                break;
 
             if (score > worst_score) {
                 worst_score = score;

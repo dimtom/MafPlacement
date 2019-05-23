@@ -99,16 +99,16 @@ void outputPlayerOptimization(const Schedule& schedule)
     const auto& conf = schedule.config();
 
     // print schedule
-    printSchedulebyRounds(schedule);
-    printScheduleByPlayers(schedule);
-    printScheduleByPlayersCStyle(schedule);
+    //printSchedulebyRounds(schedule);
+    //printScheduleByPlayers(schedule);
+    //printScheduleByPlayersCStyle(schedule);
     if (!schedule.verify()) {
         throw std::exception("schedule is not valid");
     }
 
-    outputPlayerMatrix(schedule);
+    //outputPlayerMatrix(schedule);
     outputPairsHistogram(schedule);
-    outputPlayerStatistics(schedule);
+    //outputPlayerStatistics(schedule);
 }
 
 
