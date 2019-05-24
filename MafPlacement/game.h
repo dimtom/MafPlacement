@@ -46,6 +46,12 @@ public:
 
     void switchSeats(size_t seat_one, size_t seat_two);
 
+    void setSeats(const std::vector<player_t>& seats);
+    void shuffleSeats();
+
+private:
+    void calcPlayers();
+
 private:
     const Configuration& _config;
     

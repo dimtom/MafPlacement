@@ -91,9 +91,9 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
             const double expected_a = 0.3;
             const double expected_b = 0.4;
             const double expected_c = 0.3;
-            triple_simmetry_penalty += 2 * fabs(k_a - expected_a) * fabs(k_a - expected_a);
+            triple_simmetry_penalty += fabs(k_a - expected_a) * fabs(k_a - expected_a);
             triple_simmetry_penalty += fabs(k_b - expected_b) * fabs(k_b - expected_b);
-            triple_simmetry_penalty += 2 * fabs(k_c - expected_c) * fabs(k_c - expected_c);
+            triple_simmetry_penalty += fabs(k_c - expected_c) * fabs(k_c - expected_c);
         }
 
         // Force seat1: 10% target
@@ -103,12 +103,14 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
             const double expected_last = 0.1;
             double k_first = seats[0] / sum;
             double k_last = seats[9] / sum;
-            first_penalty += 5 * fabs(k_first - expected_first) * fabs(k_first - expected_first);
-            last_penalty += 5 * fabs(k_last - expected_last) * fabs(k_last - expected_last);
+            first_penalty += fabs(k_first - expected_first) * fabs(k_first - expected_first);
+            last_penalty += fabs(k_last - expected_last) * fabs(k_last - expected_last);
         }
     }
 
-    return sd_penalty + half_simmetry_penalty + triple_simmetry_penalty + first_penalty + last_penalty;
+    return sd_penalty + half_simmetry_penalty + triple_simmetry_penalty 
+        + 10 * first_penalty 
+        + 10 * last_penalty;
 }
 
 std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
@@ -172,35 +174,41 @@ std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
 std::unique_ptr<Schedule> solveSeats(
     const Schedule& initial_schedule,
     size_t num_stages,
-    size_t num_iterations)
+    size_t num_shuffle_per_stage,
+    size_t max_switch_per_stage,
+    std::function<bool(const Schedule&, double)> schedule_fn)
 {
     printf("\n *** Seat optimization\n");
     printf("Num stages: %zu\n", num_stages);
-    printf("Num iterations on every stage: %zu\n", num_iterations);
+    printf("Num shuffles per stage: %zu\n", num_shuffle_per_stage);
+    printf("Num switches per stage: %zu\n", max_switch_per_stage);
 
-    double best_score = FLT_MAX;
-    double worst_score = FLT_MIN;
+    const size_t max_attempts = 20;
     std::unique_ptr<Schedule> best_schedule;
+    double best_score = FLT_MAX;
 
-    for (size_t stage = 0; stage < num_stages; stage++) {
+    for (size_t i = 0; i < max_attempts; i++)
+    {
+        printf("\nAttempt %3zu\n", i);
         Schedule schedule = initial_schedule;
         Metrics metrics(schedule);
-        SeatOptimizer optimizer(schedule, num_iterations,
+        SeatOptimizer optimizer(schedule,
+            num_stages,
+            num_shuffle_per_stage,
+            max_switch_per_stage,
             [&](const Schedule& s) { return calcSeatScore(s, metrics); });
         double score = optimizer.optimize();
-        printf("Stage: %3zu. Score: %10.2f\n", stage, score);
 
-        if (score > worst_score) {
-            worst_score = score;
-        }
-        if (score < best_score) {
+        if (score < best_score)
+        {
             best_score = score;
             best_schedule = std::make_unique<Schedule>(schedule);
+            if (!schedule_fn(schedule, best_score))
+                break;
         }
+        
     }
 
-    printf("Best score: %8.4f\n", best_score);
-    printf("Worst score: %8.4f\n", worst_score);
-    return std::move(best_schedule);
+    return best_schedule;
 }
 

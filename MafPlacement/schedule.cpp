@@ -349,7 +349,6 @@ void Schedule::switchSeats(size_t game_idx, size_t seat_one, size_t seat_two)
 {
     auto& game = _games[game_idx];
     game.switchSeats(seat_one, seat_two);
-
 }
 
 

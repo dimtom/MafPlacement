@@ -58,6 +58,12 @@ public:
         return _games;
     }
 
+    // only for shuffle game
+    std::vector<Game>& games()
+    {
+        return _games;
+    }
+
 public:
     bool randomSeatChange(std::function<double()> fn);
     bool randomSeatChange(std::function<double()> fn, size_t round);

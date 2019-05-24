@@ -15,7 +15,9 @@ std::unique_ptr<Schedule> solvePlayers(
 std::unique_ptr<Schedule> solveSeats(
     const Schedule& schedule,
     size_t num_stages,
-    size_t num_iterations);
+    size_t shuffle_per_stage,
+    size_t switch_per_stage,
+    std::function<bool(const Schedule&, double)> schedule_fn);
 
 
 

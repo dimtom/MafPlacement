@@ -1,4 +1,6 @@
 #include "game.h"
+#include <algorithm> 
+#include <random> 
 
 Game::Game(const Configuration& config, const std::vector<player_t>& seats)
     : _config(config)
@@ -14,15 +16,35 @@ Game::Game(const Configuration& config, const std::vector<player_t>& seats)
     // populate seats
     _seats = std::move(seats);
 
+    calcPlayers();
+}
+
+void Game::calcPlayers()
+{
+    assert(_seats.size() == Configuration::NumSeats);
+
     // populate players' seats
     _players.resize(_config.numPlayers(), InvalidSeatId);
     for (size_t idx = 0; idx < _seats.size(); idx++) {
-        auto player_id = seats[idx];
+        auto player_id = _seats[idx];
 
         assert(player_id >= 0 && player_id < _config.numPlayers());
-        assert(_players[player_id] == InvalidSeatId);
+        // assert(_players[player_id] == InvalidSeatId);
         _players[player_id] = static_cast<seat_t>(idx);
     }
+}
+
+void Game::setSeats(const std::vector<player_t>& seats)
+{
+    assert(seats.size() == Configuration::NumSeats);
+    _seats = std::move(seats);
+    calcPlayers();
+}
+
+void Game::shuffleSeats()
+{
+    std::shuffle(_seats.begin(), _seats.end(), std::default_random_engine(0));
+    calcPlayers();
 }
 
 // returns a map seat -> player_id

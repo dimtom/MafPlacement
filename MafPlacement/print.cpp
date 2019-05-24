@@ -149,7 +149,6 @@ void outputFinal(const Schedule& schedule)
         throw std::exception("schedule is not valid");
     }
 
-
     outputSeatOptimization(schedule);
 }
 
@@ -165,7 +164,7 @@ void printConfiguration(const Configuration& conf)
 
 void printScheduleByGames(const Schedule& schedule)
 {
-    printf("*** Schedule by games\n");
+    printf("\n*** Schedule by games\n");
 
     int game_num = 0;
     for (const auto& game : schedule.games()) {
@@ -177,7 +176,7 @@ void printScheduleByGames(const Schedule& schedule)
 
 void printSchedulebyRounds(const Schedule& schedule)
 {
-    printf("*** Schedule by rounds\n");
+    printf("\n*** Schedule by rounds\n");
 
     int round_num = 0;
     int game_num = 0;
@@ -195,7 +194,7 @@ void printSchedulebyRounds(const Schedule& schedule)
 
 void printScheduleByPlayers(const Schedule& schedule)
 {
-    printf("*** Schedule for players\n");
+    printf("\n*** Schedule for players\n");
 
     auto& conf = schedule.config();
     for (player_t player = 0; player < conf.numPlayers(); player++) {
