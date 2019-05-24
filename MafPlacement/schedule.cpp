@@ -35,21 +35,51 @@ Schedule::createInitialSchedule(const Configuration& conf, player_t shift_player
 }
 
 std::unique_ptr<Schedule>
-Schedule::createCustomSchedule(const Configuration& conf, const std::vector<std::vector<player_t>>& seats)
+Schedule::createCustomScheduleFromGames(const Configuration& conf, const std::vector<std::vector<player_t>>& seats)
 {
     // TODO: here we do not check for seats - range of players, rounds, etc
     std::vector<Game> games;
+    assert(seats.size() == conf.numGames());
     for (const auto& s : seats) {
         assert(s.size() == conf.NumSeats);
 
-        auto t = s;
+        // 1-based player id
+        /*auto t = s;
         for (auto& player : t)
             player--;
-        games.emplace_back(conf, t);
+        games.emplace_back(conf, t);*/
+
+        // zero-based player id
+        games.emplace_back(conf, s);
     }
 
     auto schedule = std::make_unique<Schedule>(conf, games);
     return schedule;
+}
+
+std::unique_ptr<Schedule>
+Schedule::createCustomScheduleFromPlayers(const Configuration& conf, const std::vector<std::vector<int>>& players)
+{
+    std::vector<std::vector<player_t>> seats;
+    seats.resize(conf.numGames());
+    for (player_t player_id = 0; player_id < players.size(); player_id++)
+    {
+        const auto& player_tables = players[player_id];
+        assert(player_tables.size() == conf.numRounds());
+
+        size_t round_first_game_id = 0;
+        for (auto table_id : player_tables)
+        {
+            if (table_id != InvalidTableId)
+            {
+                auto game_id = round_first_game_id + table_id;
+                seats[game_id].emplace_back(player_id);
+            }
+            round_first_game_id += conf.numTables();
+        }
+    }
+
+    return createCustomScheduleFromGames(conf, seats);
 }
 
 bool Schedule::verify() const

@@ -20,7 +20,7 @@ void outputPlayerMatrix(const Schedule& schedule)
             if (i != player)
                 printf("%3d", opponents[i]);
             else
-                printf(" * ");
+                printf("  *");
         }
         printf("\n");
     }
@@ -98,17 +98,18 @@ void outputPlayerOptimization(const Schedule& schedule)
     Metrics metrics(schedule);
     const auto& conf = schedule.config();
 
+    // histogram
+    outputPairsHistogram(schedule);
+    //outputPlayerStatistics(schedule);
+    //outputPlayerMatrix(schedule);
+
     // print schedule
     //printSchedulebyRounds(schedule);
-    //printScheduleByPlayers(schedule);
-    //printScheduleByPlayersCStyle(schedule);
+    printScheduleByPlayers(schedule);
+    printScheduleByPlayersCStyle(schedule);
     if (!schedule.verify()) {
         throw std::exception("schedule is not valid");
     }
-
-    //outputPlayerMatrix(schedule);
-    outputPairsHistogram(schedule);
-    //outputPlayerStatistics(schedule);
 }
 
 
@@ -135,6 +136,11 @@ void outputFinal(const Schedule& schedule)
     Metrics metrics(schedule);
     const auto& conf = schedule.config();
 
+    // statistics
+    outputPairsHistogram(schedule);
+    outputPlayerMatrix(schedule);
+    outputPlayerStatistics(schedule);
+
     // print schedule
     printSchedulebyRounds(schedule);
     printScheduleByPlayers(schedule);
@@ -143,9 +149,7 @@ void outputFinal(const Schedule& schedule)
         throw std::exception("schedule is not valid");
     }
 
-    outputPlayerMatrix(schedule);
-    outputPairsHistogram(schedule);
-    outputPlayerStatistics(schedule);
+
     outputSeatOptimization(schedule);
 }
 
@@ -205,14 +209,18 @@ void printScheduleByPlayers(const Schedule& schedule)
             int game_num = 0;
             bool found = false;
             for (const Game* game : round.games()) {
-                game_num++;
+                
                 if (game->participates(player)) {
                     // found a table and a seat for this player this round
                     auto print_seat = 1 + game->players()[player];
-                    printf("%2d/%2d ", game_num, print_seat);
+                    char game_label = 'A' + game_num;
+                    printf("%c:%-2d ", game_label, print_seat);
                     found = true;
                     break;
                 }
+
+                // 0-based game_num
+                game_num++;
             }
 
             if (!found) {
@@ -226,7 +234,7 @@ void printScheduleByPlayers(const Schedule& schedule)
 
 void printScheduleByPlayersCStyle(const Schedule& schedule)
 {
-    printf("*** Schedule for players in C-style\n");
+    printf("\n*** Schedule for players in C-style\n");
 
     auto& conf = schedule.config();
     for (player_t player = 0; player < conf.numPlayers(); player++) {
@@ -246,7 +254,7 @@ void printScheduleByPlayersCStyle(const Schedule& schedule)
             int game_num = 0;
             bool found = false;
             for (const Game* game : round.games()) {
-                game_num++;
+                
                 if (game->participates(player)) {
                     // found a table and a seat for this player this round
                     auto print_seat = 1 + game->players()[player];
@@ -254,11 +262,14 @@ void printScheduleByPlayersCStyle(const Schedule& schedule)
                     found = true;
                     break;
                 }
+
+                // 0-based game-num
+                game_num++;
             }
 
             if (!found) {
                 // no game for this player this round
-                printf("  0");
+                printf(" -1");
             }
         }
         printf("}\n");

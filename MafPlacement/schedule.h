@@ -22,9 +22,18 @@ public:
     static std::unique_ptr<Schedule>
     createInitialSchedule(const Configuration& conf, player_t shift_player_num);
 
+    // create custom schedule using <games> array
+    // games - array of size number of games
+    // each item of <games> is array of length(10) - what are the players of this game
     static std::unique_ptr<Schedule>
-    createCustomSchedule(const Configuration& conf, const std::vector<std::vector<player_t>>& games);
+    createCustomScheduleFromGames(const Configuration& conf, const std::vector<std::vector<player_t>>& games);
 
+    // create custom schedule using <players> array
+    // players - array of size - number of players
+    // each item of <player>  is array of length <games> - what are the tables the player goes to
+    // -1: no game
+    static std::unique_ptr<Schedule>
+    createCustomScheduleFromPlayers(const Configuration& conf, const std::vector<std::vector<int>>& players);
 public:
     Schedule(const Configuration& config, const std::vector<Game>& games);
     Schedule(const Schedule& source);

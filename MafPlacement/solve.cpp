@@ -43,41 +43,72 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
 
     double target = conf.numAttempts() / (double)Configuration::NumSeats;
     double sd_penalty = 0.0;
+
+    double half_simmetry_penalty = 0.0;
+    double triple_simmetry_penalty = 0.0;
+    double first_penalty = 0.0;
+    double last_penalty = 0.0;
     for (int player = 0; player < conf.numPlayers(); player++)
     {
         auto seats = metrics.calcPlayerSeatsHistogram(player);
 
         double sd = Metrics::calcSquareDeviation(seats, -1, target);
         sd_penalty += sd;
+        
+        assert(seats.size() == conf.NumSeats);
+        double sum = seats[0] + seats[1] + 
+            seats[2] + seats[3] + 
+            seats[4] + seats[5] + 
+            seats[6] + seats[7] + 
+            seats[8] + seats[9];
+
+        // half simetry
+        {
+            double lo = seats[0] + seats[1] + seats[2] + seats[3] + seats[4];
+            double hi = seats[5] + seats[6] + seats[7] + seats[8] + seats[9];
+            double k_lo = lo / sum;
+            double k_hi = hi / sum;
+
+            const double expected_lo = 0.5;
+            const double expected_hi = 0.5;
+            half_simmetry_penalty += fabs(k_lo - expected_lo) * fabs(k_lo - expected_lo);
+            half_simmetry_penalty += fabs(k_hi - expected_hi) * fabs(k_hi - expected_hi);
+        }
+
+        // all seat numberes should be approximately even between
+        // 1-3 : 30% 
+        // 4-7 : 40%
+        // 8-10: 30%
+        {
+            double a = seats[0] + seats[1] + seats[2];
+            double b = seats[3] + seats[4] + seats[5] + seats[6];
+            double c = seats[7] + seats[8] + seats[9];
+
+            double k_a = a / sum;
+            double k_b = b / sum;
+            double k_c = c / sum;
+
+            const double expected_a = 0.3;
+            const double expected_b = 0.4;
+            const double expected_c = 0.3;
+            triple_simmetry_penalty += 2 * fabs(k_a - expected_a) * fabs(k_a - expected_a);
+            triple_simmetry_penalty += fabs(k_b - expected_b) * fabs(k_b - expected_b);
+            triple_simmetry_penalty += 2 * fabs(k_c - expected_c) * fabs(k_c - expected_c);
+        }
+
+        // Force seat1: 10% target
+        // Force seat10: 10% target
+        {
+            const double expected_first = 0.1;
+            const double expected_last = 0.1;
+            double k_first = seats[0] / sum;
+            double k_last = seats[9] / sum;
+            first_penalty += 5 * fabs(k_first - expected_first) * fabs(k_first - expected_first);
+            last_penalty += 5 * fabs(k_last - expected_last) * fabs(k_last - expected_last);
+        }
     }
 
-    // all seat numberes should be approximately even between
-    // 1-3 : 30% 
-    // 4-7 : 40%
-    // 8-10: 30%
-    const double expected_a = 0.3;
-    const double expected_b = 0.4;
-    const double expected_c = 0.3;
-    double simmetry_penalty = 0.0;
-    for (int player = 0; player < conf.numPlayers(); player++)
-    {
-        auto seats = metrics.calcPlayerSeatsHistogram(player);
-        double a = seats[0] + seats[1] + seats[2];
-        double b = seats[3] + seats[4] + seats[5] + seats[6];
-        double c = seats[7] + seats[8] + seats[9];
-        double sum = a + b + c;
-
-        double ka = a / sum;
-        double kb = b / sum;
-        double kc = c / sum;
-
-        // square deviation between expected and real ratio of low, mid, and high seat numbers
-        simmetry_penalty += fabs(ka - expected_a) * fabs(ka - expected_a);
-        simmetry_penalty += fabs(kb - expected_b) * fabs(kb - expected_b);
-        simmetry_penalty += fabs(kc - expected_c) * fabs(kc - expected_c);
-    }
-
-    return sd_penalty + simmetry_penalty;
+    return sd_penalty + half_simmetry_penalty + triple_simmetry_penalty + first_penalty + last_penalty;
 }
 
 std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
@@ -105,9 +136,6 @@ std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
         for (size_t stage = 0; stage < num_stages; ++stage) {
             // create initial schedule
             std::unique_ptr<Schedule> schedule = Schedule::createInitialSchedule(conf, player_shift);
-
-            // print initial schedule
-            // outputInitial(*schedule);
 
             Metrics metrics(*schedule);
             RandomOptimizer optimizer(*schedule, num_iterations,
