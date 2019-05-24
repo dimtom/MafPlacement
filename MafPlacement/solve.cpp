@@ -12,9 +12,6 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
 {
     const auto& conf = schedule.config();
 
-    size_t zero_pairs_min = 5;
-    size_t zero_pairs_found = 0;
-
     double sd_penalty = 0.0;
     double add_penalty = 0.0;
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
@@ -29,18 +26,10 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
         // int k[11] = { 100, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         
 
-        int k[11] = { 200, 100, 2, 1, 2, 10, 200, 200, 400, 500, 900 };
+        int k[11] = { 500, 100, 5, 1, 2, 50, 250, 500, 501, 502, 503 };
         add_penalty += metrics.aggregate(opponents, player, 
-            [&k, &zero_pairs_found, zero_pairs_min](int value)
-            {
-                if (value == 0)
-                {
-                    // need to find zero_pairs_min
-                    zero_pairs_found++;
-                    if (zero_pairs_found <= zero_pairs_min)
-                        return 0;
-                }
-                
+            [&k](int value)
+            {               
                 return k[value]; 
             });
     }
@@ -62,7 +51,33 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
         sd_penalty += sd;
     }
 
-    return sd_penalty;
+    // all seat numberes should be approximately even between
+    // 1-3 : 30% 
+    // 4-7 : 40%
+    // 8-10: 30%
+    const double expected_a = 0.3;
+    const double expected_b = 0.4;
+    const double expected_c = 0.3;
+    double simmetry_penalty = 0.0;
+    for (int player = 0; player < conf.numPlayers(); player++)
+    {
+        auto seats = metrics.calcPlayerSeatsHistogram(player);
+        double a = seats[0] + seats[1] + seats[2];
+        double b = seats[3] + seats[4] + seats[5] + seats[6];
+        double c = seats[7] + seats[8] + seats[9];
+        double sum = a + b + c;
+
+        double ka = a / sum;
+        double kb = b / sum;
+        double kc = c / sum;
+
+        // square deviation between expected and real ratio of low, mid, and high seat numbers
+        simmetry_penalty += fabs(ka - expected_a) * fabs(ka - expected_a);
+        simmetry_penalty += fabs(kb - expected_b) * fabs(kb - expected_b);
+        simmetry_penalty += fabs(kc - expected_c) * fabs(kc - expected_c);
+    }
+
+    return sd_penalty + simmetry_penalty;
 }
 
 std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
