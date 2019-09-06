@@ -4,6 +4,8 @@
 #include "random_optimizer.h"
 #include "seat_optimizer.h"
 
+#include <algorithm>
+
 // --------------------------------------------------------------------------
 // solve and optimization methods
 // --------------------------------------------------------------------------
@@ -13,7 +15,6 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
     const auto& conf = schedule.config();
 
     double sd_penalty = 0.0;
-    double add_penalty = 0.0;
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
     for (int player = 0; player < conf.numPlayers(); player++)
     {
@@ -22,19 +23,41 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
         double sd = Metrics::calcSquareDeviation(opponents, player, target);
         sd_penalty += sd;
 
-        // int k[11] = { 100, 50, 0, 0, 0, 0, 20, 100, 200, 400, 800 };
-        // int k[11] = { 100, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        
-
-        int k[11] = { 500, 100, 5, 1, 2, 50, 250, 500, 501, 502, 503 };
-        add_penalty += metrics.aggregate(opponents, player, 
+        /*add_penalty += metrics.aggregate(opponents, player, 
             [&k](int value)
-            {               
+            {
                 return k[value]; 
-            });
+            });*/
     }
 
-    return sd_penalty + add_penalty;
+    // calc pairs histogram
+    std::vector<int> pair_histogram(conf.numAttempts() + 1, 0);
+    for (int player = 0; player < conf.numPlayers(); player++)
+    {
+        auto opponents = metrics.calcPlayerOpponentsHistogram(player);
+        for (size_t i = 0; i < player; i++) {
+            auto num_games_together = opponents[i];
+            pair_histogram[num_games_together]++;
+        }
+    }
+    std::vector<int> k = { 1000, 400, 1, 0, 0, 0, 200, 1000, 5000, 25000, 100000 };
+    k.resize(pair_histogram.size());
+
+    // calc histogram penalty
+    double histogram_penalty = 0;
+    for (size_t i = 0; i < pair_histogram.size(); i++) {
+        const size_t ONCE = 1;
+        if (i == ONCE) {
+            // we need exactly 3 pairs who play ONCE with each other
+            const int NUM_GAMES = 3;
+            histogram_penalty += abs(pair_histogram[i] - NUM_GAMES) * k[i];
+        }
+        else {
+            histogram_penalty += pair_histogram[i] * k[i];
+        }
+    }
+
+    return sd_penalty + histogram_penalty;
 }
 
 double calcSeatScore(const Schedule& schedule, Metrics& metrics)
@@ -173,21 +196,22 @@ std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
 
 std::unique_ptr<Schedule> solveSeats(
     const Schedule& initial_schedule,
+    size_t num_attempts,
     size_t num_stages,
     size_t num_shuffle_per_stage,
     size_t max_switch_per_stage,
     std::function<bool(const Schedule&, double)> schedule_fn)
 {
     printf("\n *** Seat optimization\n");
+    printf("Num attempts: %zu\n", num_attempts);
     printf("Num stages: %zu\n", num_stages);
     printf("Num shuffles per stage: %zu\n", num_shuffle_per_stage);
     printf("Num switches per stage: %zu\n", max_switch_per_stage);
 
-    const size_t max_attempts = 20;
     std::unique_ptr<Schedule> best_schedule;
     double best_score = FLT_MAX;
 
-    for (size_t i = 0; i < max_attempts; i++)
+    for (size_t i = 0; i < num_attempts; i++)
     {
         printf("\nAttempt %3zu\n", i);
         Schedule schedule = initial_schedule;

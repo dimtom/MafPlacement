@@ -112,6 +112,24 @@ void outputPlayerOptimization(const Schedule& schedule)
     }
 }
 
+void outputShortPlayerOptimization(const Schedule& schedule)
+{
+    Metrics metrics(schedule);
+    const auto& conf = schedule.config();
+
+    // histogram
+    outputPairsHistogram(schedule);
+    //outputPlayerStatistics(schedule);
+    //outputPlayerMatrix(schedule);
+
+    // print schedule
+    //printSchedulebyRounds(schedule);
+    //printScheduleByPlayers(schedule);
+    printScheduleByPlayersCStyle(schedule);
+    if (!schedule.verify()) {
+        throw std::exception("schedule is not valid");
+    }
+}
 
 void outputSeatOptimization(const Schedule& schedule)
 {

@@ -3,6 +3,7 @@
 
 void outputInitial(const Schedule& schedule);
 void outputPlayerOptimization(const Schedule& schedule);
+void outputShortPlayerOptimization(const Schedule& schedule);
 void outputSeatOptimization(const Schedule& schedule);
 void outputFinal(const Schedule& schedule);
 
