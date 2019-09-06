@@ -1,6 +1,8 @@
 #include "game.h"
 #include <algorithm> 
-#include <random> 
+#include <cassert>
+#include <stdexcept>
+#include <random>
 
 Game::Game(const Configuration& config, const std::vector<player_t>& seats)
     : _config(config)

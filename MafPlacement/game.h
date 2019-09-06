@@ -1,5 +1,5 @@
 #pragma once
-#include <cassert>
+// #include <cassert>
 #include <vector>
 
 #include "configuration.h"
