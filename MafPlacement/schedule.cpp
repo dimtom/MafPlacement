@@ -1,6 +1,7 @@
 #include "schedule.h"
 
 #include <cassert>
+#include <stdexcept>
 
 
 std::unique_ptr<Schedule>

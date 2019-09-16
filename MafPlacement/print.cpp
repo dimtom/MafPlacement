@@ -1,6 +1,7 @@
 #include "print.h"
-
 #include "metrics.h"
+
+#include <cassert>
 
 void outputPlayerMatrix(const Schedule& schedule)
 {

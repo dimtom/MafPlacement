@@ -5,6 +5,7 @@
 #include "seat_optimizer.h"
 
 #include <algorithm>
+#include <cassert>
 
 // --------------------------------------------------------------------------
 // solve and optimization methods
