@@ -15,24 +15,26 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
 {
     const auto& conf = schedule.config();
 
-    double sd_penalty = 0.0;
+    double penalty = 0.0;
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
     for (int player = 0; player < conf.numPlayers(); player++)
     {
         auto opponents = metrics.calcPlayerOpponentsHistogram(player);
 
         double sd = Metrics::calcSquareDeviation(opponents, player, target);
-        sd_penalty += sd;
+        penalty += sd;
 
-        /*add_penalty += metrics.aggregate(opponents, player, 
+        int k[] = { 500, 20, 0, 0, 100, 500, 2000, 4000, 6000, 8000, 12000, 16000 };
+        auto add_penalty = metrics.aggregate(opponents, player, 
             [&k](int value)
             {
                 return k[value]; 
-            });*/
+            });
+        penalty += add_penalty;
     }
 
     // calc pairs histogram
-    std::vector<int> pair_histogram(conf.numAttempts() + 1, 0);
+    /*std::vector<int> pair_histogram(conf.numAttempts() + 1, 0);
     for (int player = 0; player < conf.numPlayers(); player++)
     {
         auto opponents = metrics.calcPlayerOpponentsHistogram(player);
@@ -56,9 +58,9 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
         else {
             histogram_penalty += pair_histogram[i] * k[i];
         }
-    }
+    }*/
 
-    return sd_penalty + histogram_penalty;
+    return penalty;
 }
 
 double calcSeatScore(const Schedule& schedule, Metrics& metrics)
@@ -80,7 +82,7 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
         sd_penalty += sd;
         
         assert(seats.size() == conf.NumSeats);
-        double sum = seats[0] + seats[1] + 
+        auto sum = seats[0] + seats[1] + 
             seats[2] + seats[3] + 
             seats[4] + seats[5] + 
             seats[6] + seats[7] + 
@@ -88,10 +90,10 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
 
         // half simetry
         {
-            double lo = seats[0] + seats[1] + seats[2] + seats[3] + seats[4];
-            double hi = seats[5] + seats[6] + seats[7] + seats[8] + seats[9];
-            double k_lo = lo / sum;
-            double k_hi = hi / sum;
+            auto lo = seats[0] + seats[1] + seats[2] + seats[3] + seats[4];
+            auto hi = seats[5] + seats[6] + seats[7] + seats[8] + seats[9];
+            double k_lo = lo / static_cast<double>(sum);
+            double k_hi = hi / static_cast<double>(sum);
 
             const double expected_lo = 0.5;
             const double expected_hi = 0.5;
@@ -104,13 +106,13 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
         // 4-7 : 40%
         // 8-10: 30%
         {
-            double a = seats[0] + seats[1] + seats[2];
-            double b = seats[3] + seats[4] + seats[5] + seats[6];
-            double c = seats[7] + seats[8] + seats[9];
+            auto a = seats[0] + seats[1] + seats[2];
+            auto b = seats[3] + seats[4] + seats[5] + seats[6];
+            auto c = seats[7] + seats[8] + seats[9];
 
-            double k_a = a / sum;
-            double k_b = b / sum;
-            double k_c = c / sum;
+            double k_a = a / static_cast<double>(sum);
+            double k_b = b / static_cast<double>(sum);
+            double k_c = c / static_cast<double>(sum);
 
             const double expected_a = 0.3;
             const double expected_b = 0.4;
@@ -125,8 +127,8 @@ double calcSeatScore(const Schedule& schedule, Metrics& metrics)
         {
             const double expected_first = 0.1;
             const double expected_last = 0.1;
-            double k_first = seats[0] / sum;
-            double k_last = seats[9] / sum;
+            double k_first = seats[0] / static_cast<double>(sum);
+            double k_last = seats[9] / static_cast<double>(sum);
             first_penalty += fabs(k_first - expected_first) * fabs(k_first - expected_first);
             last_penalty += fabs(k_last - expected_last) * fabs(k_last - expected_last);
         }

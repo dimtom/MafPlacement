@@ -14,6 +14,8 @@ public:
         : _schedule(schedule)
         , _max_iterations(max_iterations)
         , _score_fn(score_fn)
+        , _total_iterations(0)
+        , _good_iterations(0)
     {}
 
     RandomOptimizer() = default;
