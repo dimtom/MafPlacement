@@ -26,7 +26,7 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
         double sd = Metrics::calcSquareDeviation(opponents, player, target);
         penalty += sd;
 
-        int k[] = { 500, 20, 0, 0, 100, 500, 2000, 4000, 6000, 8000, 12000, 16000 };
+        int k[] = { 500, 10, 0, 0, 300, 1000, 2000, 4000, 8000, 16000, 32000, 64000 };
         auto add_penalty = metrics.aggregate(opponents, player, 
             [&k](int value)
             {
