@@ -8,7 +8,15 @@
         "args": [
           "-std=c++17",
           "-stdlib=libc++",
+          "game.cpp",
+          "log.cpp",
+          "metrics.cpp",
           "main.cpp",
+          "print.cpp",
+          "random_optimizer.cpp",
+          "schedule.cpp",
+          "seat_optimizer.cpp",
+          "solve.cpp",
           "-o",
           "maf_placement",
           "--debug"
