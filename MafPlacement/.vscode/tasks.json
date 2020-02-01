@@ -18,8 +18,8 @@
           "seat_optimizer.cpp",
           "solve.cpp",
           "-o",
-          "maf_placement",
-          "--debug"
+          "../out/maf_placement",
+          "-O3"
         ],
         "group": {
           "kind": "build",
