@@ -125,7 +125,7 @@ Schedule::Schedule(const Configuration& config, const std::vector<Game>& games)
 
     if (_games.size() != _config.numGames()) {
         char msg[4096];
-        sprintf_s(msg, "Can not create a schedule, expected number of games: %zu, got %zu instead.",
+        sprintf(msg, "Can not create a schedule, expected number of games: %zu, got %zu instead.",
             _config.numGames(), _games.size());
         throw std::invalid_argument(msg);
     }
@@ -339,7 +339,7 @@ void Schedule::switchPlayers(
 
     // TODO: can put into assert
     if (!canSwitchPlayers(player_a, idx_game_a, player_b, idx_game_b)) {
-        throw std::exception("can not switch players!");
+        throw std::runtime_error("can not switch players!");
     }
 
     game_a.substitutePlayer(player_a, player_b);
@@ -351,11 +351,4 @@ void Schedule::switchSeats(size_t game_idx, size_t seat_one, size_t seat_two)
     auto& game = _games[game_idx];
     game.switchSeats(seat_one, seat_two);
 }
-
-
-
-
-
-
-
 

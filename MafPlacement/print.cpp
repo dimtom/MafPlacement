@@ -90,7 +90,7 @@ void outputInitial(const Schedule& schedule)
     printScheduleByPlayers(schedule);
 
     if (!schedule.verify()) {
-        throw std::exception("schedule is not valid");
+        throw std::runtime_error("schedule is not valid");
     }
 }
 
@@ -109,7 +109,7 @@ void outputPlayerOptimization(const Schedule& schedule)
     printScheduleByPlayers(schedule);
     printScheduleByPlayersCStyle(schedule);
     if (!schedule.verify()) {
-        throw std::exception("schedule is not valid");
+        throw std::runtime_error("schedule is not valid");
     }
 }
 
@@ -128,7 +128,7 @@ void outputShortPlayerOptimization(const Schedule& schedule)
     //printScheduleByPlayers(schedule);
     printScheduleByPlayersCStyle(schedule);
     if (!schedule.verify()) {
-        throw std::exception("schedule is not valid");
+        throw std::runtime_error("schedule is not valid");
     }
 }
 
@@ -165,7 +165,7 @@ void outputFinal(const Schedule& schedule)
     printScheduleByPlayers(schedule);
     printScheduleByPlayersCStyle(schedule);
     if (!schedule.verify()) {
-        throw std::exception("schedule is not valid");
+        throw std::runtime_error("schedule is not valid");
     }
 
     outputSeatOptimization(schedule);

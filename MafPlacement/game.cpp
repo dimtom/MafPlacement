@@ -10,7 +10,7 @@ Game::Game(const Configuration& config, const std::vector<player_t>& seats)
     // sanity check
     if (seats.size() != Configuration::NumSeats) {
         char msg[4096];
-        sprintf_s(msg, "Can not create a game, expected number of seats %zu, got %zu instead.",
+        sprintf(msg, "Can not create a game, expected number of seats %zu, got %zu instead.",
             Configuration::NumSeats, seats.size());
         throw std::invalid_argument(msg);
     }

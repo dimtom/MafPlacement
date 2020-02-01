@@ -6,6 +6,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cfloat>
+#include <cmath>
 
 // --------------------------------------------------------------------------
 // solve and optimization methods
