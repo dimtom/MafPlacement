@@ -2,7 +2,8 @@
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
 * text=auto
-*.strings diff=localizablestrings
+*.cpp text working-tree-encoding=UTF-16LE
+*.h text working-tree-encoding=UTF-16LE
 
 ###############################################################################
 # Set default behavior for command prompt diff.
