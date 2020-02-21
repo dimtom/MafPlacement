@@ -257,17 +257,17 @@ void printScheduleByPlayersCStyle(const Schedule& schedule)
     auto& conf = schedule.config();
     for (player_t player = 0; player < conf.numPlayers(); player++) {
         auto print_player = 1 + player;
-        printf("Player %2d: ", print_player);
-        printf("{");
+        //printf("Player %2d: ", print_player);
+        //printf("{");
 
         bool comma = false;
         int round_num = 0;
         for (const auto& round : schedule.rounds()) {
             round_num++;
 
-            if (comma)
+            /*if (comma)
                 printf(",");
-            comma = true;
+            comma = true;*/
 
             int game_num = 0;
             bool found = false;
@@ -275,7 +275,7 @@ void printScheduleByPlayersCStyle(const Schedule& schedule)
                 
                 if (game->participates(player)) {
                     // found a table and a seat for this player this round
-                    auto print_seat = 1 + game->players()[player];
+                    // auto print_seat = 1 + game->players()[player];
                     printf(" %2d", game_num);
                     found = true;
                     break;
@@ -290,7 +290,8 @@ void printScheduleByPlayersCStyle(const Schedule& schedule)
                 printf(" -1");
             }
         }
-        printf("}\n");
+        //printf("}\n");
+        printf("\n");
     }
 }
 

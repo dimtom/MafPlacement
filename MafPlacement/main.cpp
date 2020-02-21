@@ -7,6 +7,10 @@
 #include <memory>
 #include <stdexcept>
 
+
+#include <fstream>
+#include <sstream>
+
 #include "log.h"
 #include "schedule.h"
 #include "print.h"
@@ -14,6 +18,9 @@
 
 void usage();
 void verifyParams(int players, int rounds, int tables, int games, int* out_attempts);
+
+std::vector<std::vector<int>> 
+read_player_schedule(const Configuration& conf, const std::string& filename);
 
 // --------------------------------------------------------------------------
 // main methods
@@ -58,9 +65,22 @@ int main(int argc, char** argv)
         // optimize player opponents
         // do not optimize seats yet
         printf("\n*** Optimize player opponents\n");
-        player_t player_step = 11;
-        size_t num_stages_players = 5;
-        size_t max_iterations_players = 100 * 100 * 100;
+
+        // shift to generate different initial placements (0 - just one initial placement)
+        player_t player_step = (argc > 7)
+            ? atoi(argv[7])
+            : 0;
+
+        // number of optimization attempts
+        size_t num_stages_players = (argc > 8)
+            ? atoi(argv[8])
+            : 3;
+
+        // number of iterations for single optimization stage
+        size_t max_iterations_players = (argc > 9)
+            ? atoi(argv[9])
+            : 100 * 100 * 100;
+
         double best_score = DBL_MAX;
         auto lambda = [&best_score](const Schedule& schedule, double score)
         {
@@ -84,60 +104,8 @@ int main(int argc, char** argv)
     else
     {
         printf("*** Loading custom schedule...\n");
-        std::vector<std::vector<int>> player_tables =
-        {
-            {  4,  3,  3,  2,  4,  3,  3,  1,  4,  2},
-            {  1,  3,  2,  1,  2,  4,  1,  4,  3,  4},
-            {  1,  1,  0,  1,  3,  2,  4,  3,  4,  0},
-            {  3,  4,  2,  1,  2,  2,  3,  1,  4,  4},
-            {  0,  4,  0,  4,  4,  2,  2,  4,  4,  2},
-            {  1,  3,  4,  3,  4,  1,  3,  3,  1,  4},
-            {  2,  2,  2,  4,  3,  0,  1,  0,  1,  2},
-            {  0,  2,  4,  2,  0,  4,  4,  0,  4,  3},
-            {  4,  3,  4,  4,  2,  0,  2,  0,  4,  1},
-            {  4,  4,  3,  3,  1,  3,  4,  0,  3,  3},
-            {  4,  0,  1,  1,  4,  4,  0,  2,  0,  2},
-            {  1,  0,  2,  4,  2,  3,  4,  3,  1,  0},
-            {  1,  0,  0,  3,  1,  0,  3,  0,  0,  0},
-            {  4,  2,  0,  0,  0,  4,  2,  3,  3,  4},
-            {  0,  0,  4,  0,  4,  0,  4,  1,  0,  4},
-            {  2,  2,  0,  0,  2,  0,  3,  2,  2,  3},
-            {  3,  2,  1,  3,  4,  0,  0,  4,  3,  0},
-            {  2,  4,  3,  4,  1,  4,  0,  3,  1,  4},
-            {  0,  0,  2,  2,  3,  0,  3,  3,  3,  3},
-            {  3,  0,  3,  2,  3,  3,  2,  4,  2,  4},
-            {  0,  4,  1,  0,  4,  4,  3,  0,  2,  0},
-            {  1,  4,  1,  2,  2,  1,  2,  1,  2,  2},
-            {  4,  4,  4,  3,  1,  1,  1,  3,  2,  1},
-            {  2,  1,  2,  1,  4,  1,  2,  0,  1,  1},
-            {  0,  1,  1,  1,  3,  3,  3,  2,  1,  1},
-            {  2,  0,  2,  0,  1,  1,  1,  2,  4,  0},
-            {  3,  2,  4,  1,  1,  2,  4,  4,  2,  2},
-            {  4,  2,  3,  1,  3,  1,  1,  4,  0,  0},
-            {  3,  3,  1,  4,  0,  1,  4,  4,  0,  3},
-            {  0,  4,  0,  2,  0,  0,  0,  4,  1,  0},
-            {  3,  1,  0,  4,  4,  4,  1,  1,  0,  3},
-            {  2,  0,  4,  1,  0,  3,  1,  0,  3,  2},
-            {  0,  1,  2,  3,  1,  3,  2,  2,  0,  4},
-            {  1,  2,  2,  0,  0,  3,  0,  1,  4,  1},
-            {  4,  2,  1,  2,  1,  2,  1,  2,  1,  4},
-            {  4,  1,  4,  4,  3,  4,  0,  1,  2,  0},
-            {  2,  1,  1,  2,  2,  2,  4,  3,  0,  1},
-            {  0,  3,  0,  3,  2,  1,  0,  2,  2,  2},
-            {  1,  3,  3,  1,  1,  0,  2,  3,  2,  3},
-            {  4,  0,  2,  4,  0,  2,  3,  4,  2,  1},
-            {  0,  2,  3,  3,  2,  4,  4,  2,  3,  1},
-            {  2,  3,  0,  0,  3,  1,  4,  1,  3,  1},
-            {  3,  1,  3,  0,  0,  0,  1,  3,  4,  2},
-            {  1,  4,  3,  0,  3,  2,  0,  0,  0,  2},
-            {  2,  1,  4,  0,  2,  3,  0,  4,  1,  3},
-            {  2,  3,  1,  3,  0,  2,  2,  1,  4,  0},
-            {  3,  1,  3,  4,  0,  1,  3,  2,  3,  4},
-            {  3,  3,  0,  2,  1,  3,  0,  0,  0,  1},
-            {  1,  4,  4,  2,  4,  2,  1,  2,  3,  3},
-            {  3,  0,  1,  3,  3,  4,  2,  1,  1,  3},
-        };
-
+        std::vector<std::vector<int>> player_tables = read_player_schedule(conf, "player_schedule.txt");
+        
         players_schedule = Schedule::createCustomScheduleFromPlayers(conf, player_tables);
     }
 
@@ -148,10 +116,10 @@ int main(int argc, char** argv)
     if (optimize_seats)
     {
         printf("\n*** Optimize seats\n");
-        size_t num_attempts = 50;
+        size_t num_attempts = 80;
         size_t max_stages_seats = 2;
-        size_t max_shuffle_per_stage = 500000;
-        size_t max_switch_per_stage = 500000;
+        size_t max_shuffle_per_stage = 800000;
+        size_t max_switch_per_stage = 400000;
 
         double best_score = DBL_MAX;
         auto lambda = [&best_score](const Schedule& schedule, double score)
@@ -228,4 +196,36 @@ void verifyParams(int players, int rounds, int tables, int games, int* out_attem
         throw std::invalid_argument(msg);
     }
     *out_attempts = 10 * games / players;
+}
+
+std::vector<std::vector<int>> 
+read_player_schedule(const Configuration& conf, const std::string& filename)
+{
+    std::vector<std::vector<int>> result;
+
+    std::ifstream in(filename);
+    
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line[0] == '#')
+            continue;
+
+        if (line.empty())
+            continue;
+
+        std::stringstream ss;
+        ss.str(line);
+
+        std::vector<int> v;
+        v.resize(conf.numRounds());
+        for (size_t i = 0; i < v.size(); i++) {
+            int table;
+            ss >> table;
+            v[i] = table;
+        }
+
+        result.push_back(v);
+    }
+
+    return result;
 }

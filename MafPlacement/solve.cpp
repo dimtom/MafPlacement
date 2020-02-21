@@ -18,6 +18,11 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
     const auto& conf = schedule.config();
 
     double penalty = 0.0;
+    double add_penalty = 0.0;
+
+    // coefficients to boost number of opponents for every player
+    const int k[] = { 200, 0, 0, 0, 50, 500, 1000, 2000, 3000, 4000, 5000, 6000 };
+
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
     for (int player = 0; player < conf.numPlayers(); player++)
     {
@@ -26,43 +31,16 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
         double sd = Metrics::calcSquareDeviation(opponents, player, target);
         penalty += sd;
 
-        int k[] = { 500, 10, 0, 0, 300, 1000, 2000, 4000, 8000, 16000, 32000, 64000 };
-        auto add_penalty = metrics.aggregate(opponents, player, 
+        auto pp = metrics.aggregate(opponents, player, 
             [&k](int value)
             {
                 return k[value]; 
             });
-        penalty += add_penalty;
+        add_penalty += pp;
     }
 
-    // calc pairs histogram
-    /*std::vector<int> pair_histogram(conf.numAttempts() + 1, 0);
-    for (int player = 0; player < conf.numPlayers(); player++)
-    {
-        auto opponents = metrics.calcPlayerOpponentsHistogram(player);
-        for (size_t i = 0; i < player; i++) {
-            auto num_games_together = opponents[i];
-            pair_histogram[num_games_together]++;
-        }
-    }
-    std::vector<int> k = { 1000, 400, 1, 0, 0, 0, 200, 1000, 5000, 25000, 100000 };
-    k.resize(pair_histogram.size());
 
-    // calc histogram penalty
-    double histogram_penalty = 0;
-    for (size_t i = 0; i < pair_histogram.size(); i++) {
-        const size_t ONCE = 1;
-        if (i == ONCE) {
-            // we need exactly 3 pairs who play ONCE with each other
-            const int NUM_GAMES = 3;
-            histogram_penalty += abs(pair_histogram[i] - NUM_GAMES) * k[i];
-        }
-        else {
-            histogram_penalty += pair_histogram[i] * k[i];
-        }
-    }*/
-
-    return penalty;
+    return penalty + add_penalty ;
 }
 
 double calcSeatScore(const Schedule& schedule, Metrics& metrics)
