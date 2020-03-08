@@ -21,7 +21,7 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
     double add_penalty = 0.0;
 
     // coefficients to boost number of opponents for every player
-    const int k[] = { 200, 0, 0, 0, 50, 500, 1000, 2000, 3000, 4000, 5000, 6000 };
+    const int k[] = { 400, 1, 0, 0, 10, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
 
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
     for (int player = 0; player < conf.numPlayers(); player++)

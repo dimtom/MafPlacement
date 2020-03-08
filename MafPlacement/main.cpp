@@ -116,7 +116,7 @@ int main(int argc, char** argv)
     if (optimize_seats)
     {
         printf("\n*** Optimize seats\n");
-        size_t num_attempts = 80;
+        size_t num_attempts = 50;
         size_t max_stages_seats = 2;
         size_t max_shuffle_per_stage = 800000;
         size_t max_switch_per_stage = 400000;
