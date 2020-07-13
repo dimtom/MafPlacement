@@ -6,7 +6,7 @@
         "type": "shell",
         "command": "clang++",
         "args": [
-          "-std=c++17",
+          "-std=c++14",
           "-stdlib=libc++",
           "game.cpp",
           "log.cpp",
