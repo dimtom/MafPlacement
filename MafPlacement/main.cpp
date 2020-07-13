@@ -55,9 +55,27 @@ int main(int argc, char** argv)
     Configuration conf(players, rounds, tables, games, attempts);
     printConfiguration(conf);
 
-    bool optimize_players = (argc > 5)
-        ? strcmp(argv[5], "yes") == 0
-        : true;
+
+    // optimize players - true by default
+    // command-line param: "yes" - means do player optimization
+    // otherwise use filename to load player schedule from external file 
+    bool optimize_players = true;
+    std::string players_schedule_filename;
+    if (argc > 5)
+    {
+        optimize_players = strcmp(argv[5], "yes") == 0;
+        if (!optimize_players)
+            players_schedule_filename = argv[5];
+    }
+
+    // optimize seats - false by default
+    // specify "yes" to do seats optimization
+    bool optimize_seats = false;
+    if (argc > 6 && strcmp(argv[6], "yes") == 0)
+    {
+        optimize_seats = true;
+    }
+
 
     std::unique_ptr<Schedule> players_schedule;
     if (optimize_players)
@@ -103,23 +121,20 @@ int main(int argc, char** argv)
     }
     else
     {
-        printf("*** Loading custom schedule...\n");
-        std::vector<std::vector<int>> player_tables = read_player_schedule(conf, "player_schedule.txt");
+        printf("*** Loading custom schedule: %s\n", players_schedule_filename.c_str());
+        std::vector<std::vector<int>> player_tables = read_player_schedule(conf, players_schedule_filename);
         
         players_schedule = Schedule::createCustomScheduleFromPlayers(conf, player_tables);
     }
 
     std::unique_ptr<Schedule> final_schedule;
-    bool optimize_seats = (argc > 6)
-        ? strcmp(argv[6], "yes") == 0
-        : false;
     if (optimize_seats)
     {
         printf("\n*** Optimize seats\n");
         size_t num_attempts = 50;
         size_t max_stages_seats = 2;
-        size_t max_shuffle_per_stage = 800000;
-        size_t max_switch_per_stage = 400000;
+        size_t max_shuffle_per_stage = 1000000;
+        size_t max_switch_per_stage = 500000;
 
         double best_score = DBL_MAX;
         auto lambda = [&best_score](const Schedule& schedule, double score)

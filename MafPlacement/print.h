@@ -13,3 +13,7 @@ void printSchedulebyRounds(const Schedule& schedule);
 void printScheduleByPlayers(const Schedule& schedule);
 void printScheduleByPlayersCStyle(const Schedule& schedule);
 void printGame(const Game& game);
+
+void outputPlayerMatrix(const Schedule& schedule);
+void outputOpponentsMatrix(const Schedule& schedule, int num_opponents);
+

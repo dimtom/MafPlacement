@@ -1,6 +1,7 @@
 #include "schedule.h"
 
 #include <cassert>
+#include <memory>
 #include <stdexcept>
 
 

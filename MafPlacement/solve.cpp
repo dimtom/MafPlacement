@@ -21,7 +21,15 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
     double add_penalty = 0.0;
 
     // coefficients to boost number of opponents for every player
-    const int k[] = { 400, 1, 0, 0, 10, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
+
+    // Las Vegas-2020 50 players
+    // const int k[] = { 400, 1, 0, 0, 10, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
+
+    // Las Vegas-2020 50 players
+    const int k[] = { 50, 0, 0, 0, 100, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
+
+    // Las Vegas-2020 60 players
+    // const int k[] = { 30, 0, 0, 0, 100, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
 
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
     for (int player = 0; player < conf.numPlayers(); player++)

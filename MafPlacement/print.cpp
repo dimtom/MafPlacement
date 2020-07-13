@@ -18,12 +18,41 @@ void outputPlayerMatrix(const Schedule& schedule)
         assert(opponents.size() == conf.numPlayers());
         
         for (size_t i = 0; i < conf.numPlayers(); i++) {
-            if (i != player)
-                printf("%3d", opponents[i]);
-            else
+            if (i == player)
                 printf("  *");
+            else
+                printf("%3d", opponents[i]);
         }
         printf("\n");
+    }
+}
+
+void outputOpponentsMatrix(const Schedule& schedule, int num_opponents)
+{
+    Metrics metrics(schedule);
+    const auto& conf = schedule.config();
+
+    printf("\nPlayers that play with each other exactly %d games:\n", num_opponents);
+    for (player_t player = 0; player < conf.numPlayers(); player++)
+    {
+        auto opponents = metrics.calcPlayerOpponentsHistogram(player);
+        assert(opponents.size() == conf.numPlayers());
+        
+        bool caption_printed = false;
+        for (size_t i = 0; i < player; i++) {            
+            if (i != player && num_opponents == opponents[i]) {
+                if (!caption_printed)
+                {
+                    auto print_player = 1 + player;
+                    printf("Player %2d: ", print_player);
+                    caption_printed = true;
+                }
+                printf("%3d", static_cast<int>(i));
+            }
+        }
+
+        if (caption_printed)
+            printf("\n");
     }
 }
 
@@ -104,6 +133,9 @@ void outputPlayerOptimization(const Schedule& schedule)
     //outputPlayerStatistics(schedule);
     //outputPlayerMatrix(schedule);
 
+    // enumarate non-playing pairs
+    outputOpponentsMatrix(schedule, 0);
+
     // print schedule
     //printSchedulebyRounds(schedule);
     printScheduleByPlayers(schedule);
@@ -122,6 +154,9 @@ void outputShortPlayerOptimization(const Schedule& schedule)
     outputPairsHistogram(schedule);
     //outputPlayerStatistics(schedule);
     //outputPlayerMatrix(schedule);
+
+    // enumarate non-playing pairs
+    outputOpponentsMatrix(schedule, 0);
 
     // print schedule
     //printSchedulebyRounds(schedule);
@@ -159,6 +194,15 @@ void outputFinal(const Schedule& schedule)
     outputPairsHistogram(schedule);
     outputPlayerMatrix(schedule);
     outputPlayerStatistics(schedule);
+
+    // enumarate pairs with no/single games
+    outputOpponentsMatrix(schedule, 0);
+    outputOpponentsMatrix(schedule, 1);
+
+    // enumarate pairs with 4,5,6 games
+    outputOpponentsMatrix(schedule, 4);
+    outputOpponentsMatrix(schedule, 5);
+    outputOpponentsMatrix(schedule, 6);
 
     // print schedule
     printSchedulebyRounds(schedule);
