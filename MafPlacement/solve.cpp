@@ -26,10 +26,25 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
     // const int k[] = { 400, 1, 0, 0, 10, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
 
     // Las Vegas-2020 50 players
-    const int k[] = { 50, 0, 0, 0, 100, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
+    // const int k[] = { 50, 0, 0, 0, 100, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
 
     // Las Vegas-2020 60 players
     // const int k[] = { 30, 0, 0, 0, 100, 500, 1000, 2000, 4000, 8000, 16000, 32000 };
+
+    // Miami 2020 20p-2t
+    // const int k[] = { 1000, 500, 300, 1, 0, 0, 1, 50, 500, 1000, 2000, 4000 };
+
+    // Sacramento 2020-28p-2t
+    // const int k[] = { 1000, 500, 0, 0, 0, 0, 100, 500, 800, 1000, 2000, 4000 };
+
+    // Sacramento 2020-30p-2t
+    //const int k[] = { 100, 5, 1, 0, 0, 1, 5, 50, 100, 100, 100, 100, 100 };
+
+    // Sacramento 2020-26p-2t
+    // const int k[] = { 500, 5, 0, 0, 0, 2, 10, 100, 500, 1000, 1000, 1000, 1000 };
+
+    // Miami 2020 16p-1t
+    const int k[] = { 500, 5, 0, 0, 0, 2, 10, 100, 500, 1000, 1000, 1000, 1000 };
 
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
     for (int player = 0; player < conf.numPlayers(); player++)
@@ -48,7 +63,7 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
     }
 
 
-    return penalty + add_penalty ;
+    return penalty + add_penalty;
 }
 
 double calcSeatScore(const Schedule& schedule, Metrics& metrics)
