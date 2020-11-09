@@ -44,7 +44,10 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
     // const int k[] = { 500, 5, 0, 0, 0, 2, 10, 100, 500, 1000, 1000, 1000, 1000 };
 
     // Miami 2020 16p-1t
-    const int k[] = { 500, 5, 0, 0, 0, 2, 10, 100, 500, 1000, 1000, 1000, 1000 };
+    // const int k[] = { 1000, 500, 100, 50, 50, 0, 0, 0, 500, 1000, 2000, 4000, 8000 };
+    
+    // Miami 2020 15p-1t
+    const int k[] = { 1000, 800, 600, 500, 100, 50, 0, 0, 500, 100, 1200, 2000, 4000, 8000, 10000 };
 
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
     for (int player = 0; player < conf.numPlayers(); player++)
@@ -167,10 +170,14 @@ std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
         for (size_t stage = 0; stage < num_stages; ++stage) {
             // create initial schedule
             std::unique_ptr<Schedule> schedule = Schedule::createInitialSchedule(conf, player_shift);
+            if (!schedule->verify()) {
+                throw std::runtime_error("Initial schedule is not valid");
+            }
 
             Metrics metrics(*schedule);
             RandomOptimizer optimizer(*schedule, num_iterations,
                 [&](const Schedule& s) { return calcPlayerScore(s, metrics); });
+
             double score = optimizer.optimize();
             
             size_t good_iterations = optimizer.goodIterations();

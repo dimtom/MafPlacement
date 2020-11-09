@@ -158,24 +158,23 @@ void Schedule::populateRounds()
         _rounds.push_back(std::move(r));
     }
 }
-size_t Schedule::generateRandomRound() const
-{
-    assert(_config.numRounds() >= 2);
 
+size_t Schedule::generateRandomRound() const {
+    assert(_config.numRounds() >= 2);
     size_t round = rand() % _config.numRounds();
-    
-    // TODO: move it into special constraint/function
-    // do not return a round with a single game...
-    if (_rounds[round].games().size() < 2) {
+
+    // don't return non-full (last) round
+    if (_rounds[round].games().size() < _config.numTables()) {
+        assert(round > 0);
         round--;
-        assert(_rounds[round].games().size() < 2);
     }
 
+    // return only FULL round
+    assert(_rounds[round].games().size() == _config.numTables());
     return round;
 }
 
-size_t Schedule::generateRandomGame() const
-{
+size_t Schedule::generateRandomGame() const {
     assert(_config.numGames() >= 2);
 
     size_t game = rand() % _config.numGames();
@@ -210,7 +209,6 @@ player_t Schedule::generateRandomPlayer() const
 {
     player_t player = static_cast<player_t>(rand() % _config.numPlayers());
     return player;
-
 }
 
 bool Schedule::randomSeatChange(std::function<double()> fn)
@@ -221,11 +219,66 @@ bool Schedule::randomSeatChange(std::function<double()> fn)
 
 bool Schedule::randomSeatChange(std::function<double()> fn, size_t round)
 {
+    // special ase - only ONE table
+    if (_config.numTables() == 1) {
+        // every round has exactly one table
+        // therefore - game index in this round is round index
+        auto game_idx = round;
+        return randomSeatChangeInSingleGame(fn, game_idx);
+    }
+    
+    // generic case
     size_t game_one;
     size_t game_two;
     generateRandomGames(round, &game_one, &game_two);
 
     return randomSeatChangeInGames(fn, game_one, game_two);
+}
+
+
+bool Schedule::randomSeatChangeInSingleGame(
+    std::function<double()> fn,
+    size_t game_idx) {
+    auto& game = _games[game_idx];
+    
+    auto seat = rand() % Configuration::NumSeats;
+    player_t old_player = game.getPlayerAtSeat(seat);
+
+    // find new_player - among ALL absent players in this game!
+    size_t absent_players = _config.numPlayers() - Configuration::NumSeats;
+    assert(absent_players > 0);
+    size_t absent_player_idx = rand() % absent_players;
+
+    size_t absent_count = 0;
+    player_t new_player = InvalidPlayerId;
+    for (player_t p = 0; p < _config.numPlayers(); p++) {
+        if (game.participates(p)) {
+            continue;
+        }
+
+        if (absent_player_idx == absent_count) {
+            // found new_player!
+            new_player = p; 
+            break;
+        }
+        
+        // go to next absent player
+        absent_count++;
+    }
+
+    assert(new_player != InvalidPlayerId);
+    assert(new_player >=0 && new_player < _config.numPlayers());
+    assert(!game.participates(new_player));
+
+    double score_before = fn();
+    game.putPlayerToSeat(seat, new_player);
+    double score_after = fn();
+    if (score_after >= score_before) {
+        game.putPlayerToSeat(seat, old_player);
+        return false;
+    }
+
+    return true;
 }
 
 bool Schedule::randomSeatChangeInGames(
@@ -266,60 +319,6 @@ bool Schedule::randomSeatChangeInGames(
     // cound not found a valid pair
     return false;
 }
-
-/*bool Schedule::randomPlayerChange(std::function<double()> fn)
-{
-    auto round = generateRandomRound();
-    return randomPlayerChange(fn, round);
-}
-
-bool Schedule::randomPlayerChange(std::function<double()> fn, size_t round)
-{
-    size_t game_one;
-    size_t game_two;
-    generateRandomGames(round, &game_one, &game_two);
-
-    return randomPlayerChangeInGames(fn, game_one, game_two);
-}
-
-bool Schedule::randomPlayerChangeInGames(
-    std::function<double()> fn,
-    size_t game1_idx,
-    size_t game2_idx)
-{
-    assert(game1_idx != game2_idx);
-
-    auto& g1 = _games[game1_idx];
-    auto& g2 = _games[game2_idx];
-
-    const int MAX_ITERATIONS = 100;
-    for (size_t i = 0; i < MAX_ITERATIONS; i++) {
-        seat_t pos1 = rand() % Configuration::NumSeats;
-        seat_t pos2 = rand() % Configuration::NumSeats;
-
-        // TODO: MUST check it we try to put a player to a game where there is already a player !!!
-
-        // try to swap players
-
-        player_t player1 = g1.getPlayerAtSeat(pos1);
-        player_t player2 = g2.getPlayerAtSeat(pos2);
-
-        if (canSwitchPlayers(player1, game1_idx, player2, game2_idx))
-        {
-            double score_before = fn();
-            switchPlayers(player1, game1_idx, player2, game2_idx);
-            double score_after = fn();
-            if (score_after >= score_before) {
-                switchPlayers(player2, game1_idx, player1, game2_idx);
-                return false;
-            }
-            return true;
-        }
-    }
-
-    // cound not found a valid pair
-    return false;
-}*/
 
 bool Schedule::canSwitchPlayers(
     player_t player_a, size_t idx_game_a,

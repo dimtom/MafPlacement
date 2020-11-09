@@ -43,37 +43,45 @@ public:
     bool verify() const;
 
 public:
-    const Configuration& config() const
-    {
+    const Configuration& config() const {
         return _config;
     }
 
-    const std::vector<Round>& rounds() const
-    {
+    const std::vector<Round>& rounds() const {
         return _rounds;
     }
 
-    const std::vector<Game>& games() const
-    {
+    const std::vector<Game>& games() const {
         return _games;
     }
 
     // only for shuffle game
-    std::vector<Game>& games()
-    {
+    std::vector<Game>& games() {
         return _games;
     }
 
 public:
+    // for players optimizer
     bool randomSeatChange(std::function<double()> fn);
+
+    // for seats optimizer
+    size_t generateRandomGame() const;
+    seat_t generateRandomSeat() const;
+    void switchSeats(size_t game_num, size_t seat_one, size_t seat_two);
+    
+private:
+    size_t generateRandomRound() const;
+
+    // do random shuffling in given round
     bool randomSeatChange(std::function<double()> fn, size_t round);
+
+    // for schedules with >1 tables
     bool randomSeatChangeInGames(std::function<double()> fn,
         size_t game1_idx, size_t game2_idx);
 
-    /*bool randomPlayerChange(std::function<double()> fn);
-    bool randomPlayerChange(std::function<double()> fn, size_t round);
-    bool randomPlayerChangeInGames(std::function<double()> fn,
-        size_t game1_idx, size_t game2_idx);*/
+    // for schedules with ONLY ONE table
+    bool randomSeatChangeInSingleGame(std::function<double()> fn, 
+        size_t game_idx);
 
     bool canSwitchPlayers(
         player_t player_a, size_t idx_game_a,
@@ -83,16 +91,9 @@ public:
         player_t player_a, size_t idx_game_a,
         player_t player_b, size_t idx_game_b);
 
-    void switchSeats(size_t game_num, size_t seat_one, size_t seat_two);
-
-public:
-    // helper methods for optimizers
-    size_t generateRandomRound() const;
-    size_t generateRandomGame() const;
-    seat_t generateRandomSeat() const;
+    
     player_t generateRandomPlayer() const;
 
-private:
     void populateRounds();
     void generateRandomGames(size_t round, size_t* out_game_one, size_t* out_game_two) const;
 
