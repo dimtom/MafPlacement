@@ -196,13 +196,18 @@ void outputFinal(const Schedule& schedule)
     outputPlayerStatistics(schedule);
 
     // enumarate pairs with no/single games
-    outputOpponentsMatrix(schedule, 0);
-    outputOpponentsMatrix(schedule, 1);
+    // outputOpponentsMatrix(schedule, 0);
+    // outputOpponentsMatrix(schedule, 1);
 
     // enumarate pairs with 4,5,6 games
-    outputOpponentsMatrix(schedule, 4);
-    outputOpponentsMatrix(schedule, 5);
-    outputOpponentsMatrix(schedule, 6);
+    // outputOpponentsMatrix(schedule, 4);
+    // outputOpponentsMatrix(schedule, 5);
+    // outputOpponentsMatrix(schedule, 6);
+    
+    // outputOpponentsMatrix(schedule, 7);
+    // outputOpponentsMatrix(schedule, 8);
+
+    // outputOpponentsMatrix(schedule, 9);
 
     // print schedule
     printSchedulebyRounds(schedule);

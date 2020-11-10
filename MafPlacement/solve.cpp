@@ -47,7 +47,7 @@ double calcPlayerScore(const Schedule& schedule, Metrics& metrics)
     // const int k[] = { 1000, 500, 100, 50, 50, 0, 0, 0, 500, 1000, 2000, 4000, 8000 };
     
     // Miami 2020 15p-1t
-    const int k[] = { 1000, 800, 600, 500, 100, 50, 0, 0, 500, 100, 1200, 2000, 4000, 8000, 10000 };
+    const int k[] = { 1000, 800, 600, 500, 200, 100, 50, 0, 500, 1000, 2000, 3000, 4000, 5000, 6000 };
 
     double target = 9.0 * conf.numAttempts() / (conf.numPlayers() - 1);
     for (int player = 0; player < conf.numPlayers(); player++)
@@ -153,8 +153,9 @@ std::unique_ptr<Schedule> solvePlayers(const Configuration& conf,
 {
     // calculate only ONE single initial schedule - just to reduce computations
     // assign this variable to ONE to get as many trivial initial schedules as possible
-    if (player_step == 0)
+    if (player_step == 0) {
         player_step = static_cast<player_t>(conf.numPlayers());
+    }
 
     printf("\n *** Player optimization\n");
     printf("\tPlayer_step: %zu\n", player_step);

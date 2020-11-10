@@ -6,7 +6,7 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/../out/maf_placement",
-        "args": ["44", "10", "4", "44"],
+        "args": ["15", "15", "1", "15", "yes", "no", "1"],
         "stopAtEntry": true,
         "cwd": "${workspaceFolder}",
         "environment": [],

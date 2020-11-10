@@ -48,6 +48,7 @@ int main(int argc, char** argv)
         verifyParams(players, rounds, tables, games, &attempts);
     }
     catch (std::exception& ex) {
+        usage();
         printf("Failed to verify parameters:\n%s", ex.what());
         return -1;
     }
@@ -55,7 +56,6 @@ int main(int argc, char** argv)
     // create config
     Configuration conf(players, rounds, tables, games, attempts);
     printConfiguration(conf);
-
 
     // optimize players - true by default
     // command-line param: "yes" - means do player optimization
@@ -174,6 +174,10 @@ int main(int argc, char** argv)
 void usage()
 {
     printf("Usage: <players> <rounds> <tables> <games>\n");
+
+    printf("\tyes/<file_name>: ""yes"" to execute player optimization (or filename to load schedule from)\n");
+    printf("\tyes/no: ""yes"" to execute seats optimization\n");
+    printf("\n");
 }
 
 void verifyParams(int players, int rounds, int tables, int games, int* out_attempts)

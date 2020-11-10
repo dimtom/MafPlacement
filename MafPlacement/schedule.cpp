@@ -2,8 +2,8 @@
 
 #include <cassert>
 #include <memory>
+#include <set>
 #include <stdexcept>
-
 
 std::unique_ptr<Schedule>
 Schedule::createInitialSchedule(const Configuration& conf, player_t shift_player_num = 0)
@@ -213,69 +213,104 @@ player_t Schedule::generateRandomPlayer() const
 
 bool Schedule::randomSeatChange(std::function<double()> fn)
 {
-    auto round = generateRandomRound();
-    return randomSeatChange(fn, round);
-}
-
-bool Schedule::randomSeatChange(std::function<double()> fn, size_t round)
-{
-    // special ase - only ONE table
+    // special case - only one table
+    // switch players in 2 random rounds
     if (_config.numTables() == 1) {
-        // every round has exactly one table
-        // therefore - game index in this round is round index
-        auto game_idx = round;
-        return randomSeatChangeInSingleGame(fn, game_idx);
+        auto round_one = generateRandomRound();
+        auto round_two = generateRandomRound();
+        if (round_one == round_two) {
+            round_two = (round_two + 1) % _config.numRounds();
+        }
+        return randomSeatChangeInRouds(fn, round_one, round_two);
     }
-    
+
     // generic case
+    // switch players in 2 games of the same round
+    auto round = generateRandomRound();
+        
     size_t game_one;
     size_t game_two;
     generateRandomGames(round, &game_one, &game_two);
-
     return randomSeatChangeInGames(fn, game_one, game_two);
 }
 
-
-bool Schedule::randomSeatChangeInSingleGame(
-    std::function<double()> fn,
-    size_t game_idx) {
-    auto& game = _games[game_idx];
+// returns (busy) - set of players that are playing the game
+// and (free) - set of players that are NOT player the game
+static void getParticipantsOfGame(const Game& game,
+    std::set<player_t>& busy,
+    std::set<player_t>& free) {
+    assert(busy.empty());
+    assert(free.empty());
     
-    auto seat = rand() % Configuration::NumSeats;
-    player_t old_player = game.getPlayerAtSeat(seat);
-
-    // find new_player - among ALL absent players in this game!
-    size_t absent_players = _config.numPlayers() - Configuration::NumSeats;
-    assert(absent_players > 0);
-    size_t absent_player_idx = rand() % absent_players;
-
-    size_t absent_count = 0;
-    player_t new_player = InvalidPlayerId;
-    for (player_t p = 0; p < _config.numPlayers(); p++) {
-        if (game.participates(p)) {
-            continue;
+    const auto& players = game.players();
+    for (seat_t idx = 0; idx < players.size(); idx++) {
+        seat_t player_seat = players[idx];
+        if (player_seat != InvalidSeatId) {
+            busy.insert(idx);
+        } else {
+            free.insert(idx);
         }
+    }
+}
 
-        if (absent_player_idx == absent_count) {
-            // found new_player!
-            new_player = p; 
-            break;
-        }
-        
-        // go to next absent player
-        absent_count++;
+bool Schedule::randomSeatChangeInRouds(
+    std::function<double()> fn,
+    size_t round_one, 
+    size_t round_two) {
+    assert(round_one != round_two);
+
+    // take two games (in different rounds)
+    auto game_one_idx = round_one;
+    auto game_two_idx = round_two;
+    auto& game_one = _games[game_one_idx];
+    auto& game_two = _games[game_two_idx];
+
+    std::set<player_t> busy_one;
+    std::set<player_t> free_one;
+    getParticipantsOfGame(game_one, busy_one, free_one);
+    
+    std::set<player_t> busy_two;
+    std::set<player_t> free_two;
+    getParticipantsOfGame(game_two, busy_two, free_two);
+
+    // intersect "plays_one" x "free_two"
+    std::vector<player_t> pool_a;
+    std::set_intersection(
+        busy_one.begin(), busy_one.end(),
+        free_two.begin(),free_two.end(), 
+        std::back_inserter(pool_a));
+
+    // intersect "plays_two" x "free_one"
+    std::vector<player_t> pool_b;
+    std::set_intersection(
+        busy_two.begin(), busy_two.end(),
+        free_one.begin(),free_one.end(), 
+        std::back_inserter(pool_b));
+
+    if (pool_a.size() == 0 || pool_b.size() == 0) {
+        return false;
+        // ### throw std::runtime_error("randomSeatChangeInRouds() - empty pool!");
     }
 
-    assert(new_player != InvalidPlayerId);
-    assert(new_player >=0 && new_player < _config.numPlayers());
-    assert(!game.participates(new_player));
+    // pick 2 random players from corresponsing groups
+    size_t player_a_idx = rand() % pool_a.size();
+    size_t player_b_idx = rand() % pool_b.size();
+    player_t player_a = pool_a[player_a_idx];
+    player_t player_b = pool_b[player_b_idx];
 
     double score_before = fn();
-    game.putPlayerToSeat(seat, new_player);
+    switchPlayers(game_one, player_a, game_two, player_b);
     double score_after = fn();
     if (score_after >= score_before) {
-        game.putPlayerToSeat(seat, old_player);
+        switchPlayers(game_one, player_b, game_two, player_a);
         return false;
+    }
+
+    if (!verify()) {
+        printf("Schedule verification failed. Games: %zu, %zu. Players: %d, %d\n", 
+            game_one_idx, game_two_idx,
+            player_a, player_b);
+        throw std::runtime_error("Schedule verification failed");
     }
 
     return true;
@@ -303,13 +338,13 @@ bool Schedule::randomSeatChangeInGames(
         player_t player1 = g1.getPlayerAtSeat(pos1);
         player_t player2 = g2.getPlayerAtSeat(pos2);
 
-        if (canSwitchPlayers(player1, game1_idx, player2, game2_idx))
+        if (canSwitchPlayers(g1, player1, g2, player2))
         {
             double score_before = fn();
-            switchPlayers(player1, game1_idx, player2, game2_idx);
+            switchPlayers(g1, player1, g2, player2);
             double score_after = fn();
             if (score_after >= score_before) {
-                switchPlayers(player2, game1_idx, player1, game2_idx);
+                switchPlayers(g1, player2, g2, player1);
                 return false;
             }
             return true;
@@ -321,24 +356,19 @@ bool Schedule::randomSeatChangeInGames(
 }
 
 bool Schedule::canSwitchPlayers(
-    player_t player_a, size_t idx_game_a,
-    player_t player_b, size_t idx_game_b) const
+    Game& game_a, player_t player_a,
+    Game& game_b, player_t player_b) const
 {
-    auto& game_a = _games[idx_game_a];
-    auto& game_b = _games[idx_game_b];
     return (game_a.canSubstitutePlayer(player_a, player_b) &&
         game_b.canSubstitutePlayer(player_b, player_a));
 }
 
 void Schedule::switchPlayers(
-    player_t player_a, size_t idx_game_a,
-    player_t player_b, size_t idx_game_b)
+    Game& game_a, player_t player_a,
+    Game& game_b, player_t player_b)
 {
-    auto& game_a = _games[idx_game_a];
-    auto& game_b = _games[idx_game_b];
-
     // TODO: can put into assert
-    if (!canSwitchPlayers(player_a, idx_game_a, player_b, idx_game_b)) {
+    if (!canSwitchPlayers(game_a, player_a, game_b, player_b)) {
         throw std::runtime_error("can not switch players!");
     }
 
@@ -346,9 +376,8 @@ void Schedule::switchPlayers(
     game_b.substitutePlayer(player_b, player_a);
 }
 
-void Schedule::switchSeats(size_t game_idx, size_t seat_one, size_t seat_two)
+void Schedule::switchSeats(Game& game, size_t seat_one, size_t seat_two)
 {
-    auto& game = _games[game_idx];
     game.switchSeats(seat_one, seat_two);
 }
 

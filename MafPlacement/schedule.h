@@ -67,35 +67,33 @@ public:
     // for seats optimizer
     size_t generateRandomGame() const;
     seat_t generateRandomSeat() const;
-    void switchSeats(size_t game_num, size_t seat_one, size_t seat_two);
+    void switchSeats(Game& game, size_t seat_one, size_t seat_two);
     
 private:
     size_t generateRandomRound() const;
-
-    // do random shuffling in given round
-    bool randomSeatChange(std::function<double()> fn, size_t round);
 
     // for schedules with >1 tables
     bool randomSeatChangeInGames(std::function<double()> fn,
         size_t game1_idx, size_t game2_idx);
 
     // for schedules with ONLY ONE table
-    bool randomSeatChangeInSingleGame(std::function<double()> fn, 
-        size_t game_idx);
+    bool randomSeatChangeInRouds(std::function<double()> fn, 
+        size_t round_one, size_t round_two);
 
     bool canSwitchPlayers(
-        player_t player_a, size_t idx_game_a,
-        player_t player_b, size_t idx_game_b) const;
+        Game& game_a, player_t player_a,
+        Game& game_b, player_t player_b) const;
 
     void switchPlayers(
-        player_t player_a, size_t idx_game_a,
-        player_t player_b, size_t idx_game_b);
+        Game& game_a, player_t player_a,
+        Game& game_b, player_t player_b);
 
     
     player_t generateRandomPlayer() const;
 
     void populateRounds();
     void generateRandomGames(size_t round, size_t* out_game_one, size_t* out_game_two) const;
+
 
 private:
     const Configuration& _config;

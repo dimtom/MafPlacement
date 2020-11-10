@@ -55,20 +55,22 @@ bool SeatOptimizer::shuffleGames(size_t game_idx_one, size_t game_idx_two)
 
 bool SeatOptimizer::switchTwoSeats(size_t game_idx)
 {
+    Game& game = _schedule.games()[game_idx];
+
     size_t seat_one = _schedule.generateRandomSeat();
     size_t seat_two = _schedule.generateRandomSeat();
-    if (seat_one == seat_two) {
-        return false;
+    while (seat_two == seat_one) {
+        seat_two = _schedule.generateRandomSeat();
     }
 
     // switch only 2 players
     auto score_before = _score_fn(_schedule);
-    _schedule.switchSeats(game_idx, seat_one, seat_two);
+    _schedule.switchSeats(game, seat_one, seat_two);
     auto score_after = _score_fn(_schedule);
 
     if (score_after >= score_before) {
         // roll back only 2 players
-        _schedule.switchSeats(game_idx, seat_two, seat_one);
+        _schedule.switchSeats(game, seat_two, seat_one);
         return false;
     }
 
